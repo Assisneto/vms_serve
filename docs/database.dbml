@@ -1,0 +1,113 @@
+Enum sub_categories_type {
+  Attributes
+  Abilities
+  Benefits
+}
+
+Enum categories_type {
+  Physical
+  Social
+  Mental
+  Talents
+  Skills
+  Knowledge
+  Flaws
+  Merits
+  Backgrounds
+  Virtues // vampire
+  Disciplines // vampire
+  Gifts // werewolf
+  Renown // werewolf
+  Spheres // mage
+  others
+}
+
+Table race {
+  id uuid [pk]
+  name varchar
+  description text
+}
+
+// Table race_character {
+//   id uuid [pk]
+//   value text
+//   key text
+//   character_id uuid [ref: > character.id]
+// }
+
+// Table race_character_fields {
+//   id uuid [pk]
+//   name text
+//   race_id uuid [ref: > race.id]
+// }
+
+Table player {
+  id uuid [pk]
+  name varchar
+  email varchar
+  created_at timestamp
+}
+
+Table chronicle {
+  id uuid [pk]
+  title varchar
+  description text
+  storyteller_id uuid [ref: > player.id]
+  created_at timestamp
+}
+
+Table character {
+  id uuid [pk]
+  race_id uuid [ref: > race.id]
+  name text
+  player_id uuid [ref: > player.id]
+  chronicle_id uuid [ref: > chronicle.id]
+  // willpower_max int
+  // willpower_current int
+  bashing int
+  lethal int
+  aggravated int
+  created_at timestamp
+}
+
+Table sub_category {
+  id uuid [pk]
+  type sub_category_type
+}
+
+Table category {
+  id uuid [pk]
+  category_type_id uuid [ref: > sub_category.id]
+  type category_type
+}
+
+Table characteristics {
+  id uuid [pk]
+  category_id uuid [ref: > category.id]
+  name varchar
+  description text
+  // race_id uuid [ref: > race.id]
+}
+
+Table character_characteristics_level {
+  id uuid [pk]
+  character_id uuid [ref: > character.id]
+  characteristic_id uuid [ref: > characteristics.id]
+  level int
+}
+
+Table dynamics_characteristics {
+  id uuid [pk]
+  name varchar
+  description text
+  category_id uuid [ref: > category.id]
+  // race_id uuid [ref: > race.id]
+}
+
+Table dynamics_characteristics_level {
+  id uuid [pk]
+  character_id uuid [ref: > character.id]
+  characteristic_id uuid [ref: > dynamics_characteristics.id]
+  level int
+  used int
+}
