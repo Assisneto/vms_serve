@@ -4,7 +4,7 @@ defmodule VmsServer.Repo.Migrations.CreateRaceTable do
   def change do
     create table(:race, primary_key: false) do
       add :id, :uuid, primary_key: true
-      add :name, :string
+      add :name, :string, null: false
       add :description, :string
     end
   end

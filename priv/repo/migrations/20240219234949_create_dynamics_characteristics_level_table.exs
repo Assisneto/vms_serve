@@ -6,8 +6,8 @@ defmodule VmsServer.Repo.Migrations.CreateDynamicsCharacteristicsLevelTable do
       add :id, :uuid, primary_key: true
       add :character_id, references(:character, type: :uuid), null: false
       add :characteristic_id, references(:dynamics_characteristics, type: :uuid), null: false
-      add :level, :integer
-      add :used, :integer
+      add :level, :integer, null: false
+      add :used, :integer, null: false
       timestamps()
     end
 

@@ -4,7 +4,7 @@ defmodule VmsServer.Repo.Migrations.CreatePlayerTable do
   def change do
     create table(:player, primary_key: false) do
       add :id, :uuid, primary_key: true
-      add :name, :string
+      add :name, :string, null: false
       timestamps()
     end
   end
