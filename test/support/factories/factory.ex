@@ -6,4 +6,11 @@ defmodule VmsServer.Factory do
       name: "Assis neto"
     }
   end
+
+  def race_factory do
+    %VmsServer.Sheet.Race{
+      name: "Vampire",
+      description: "Elegant and wise"
+    }
+  end
 end
