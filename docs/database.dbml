@@ -24,16 +24,22 @@ Enum categories_type {
 
 Table race {
   id uuid [pk]
+  edition_id uuid [ref: > edition.id]
   name varchar
   description text
 }
 
-// Table race_character {
-//   id uuid [pk]
-//   value text
-//   key text
-//   character_id uuid [ref: > character.id]
-// }
+Table edition {
+  id uuid [pk]
+  name varchar
+}
+
+Table race_characteristics {
+  id uuid [pk]
+  value text
+  key text
+  character_id uuid [ref: > character.id]
+}
 
 // Table race_character_fields {
 //   id uuid [pk]
@@ -77,7 +83,7 @@ Table sub_category {
 
 Table category {
   id uuid [pk]
-  category_type_id uuid [ref: > sub_category.id]
+  sub_category_id uuid [ref: > sub_category.id]
   type category_type
 }
 
@@ -89,7 +95,7 @@ Table characteristics {
   // race_id uuid [ref: > race.id]
 }
 
-Table character_characteristics_level {
+Table characteristics_level {
   id uuid [pk]
   character_id uuid [ref: > character.id]
   characteristic_id uuid [ref: > characteristics.id]
