@@ -1,5 +1,6 @@
 defmodule VmsServer.Factory do
-  alias VmsServer.Sheet.{Player, Race, Character, Chronicle}
+  alias VmsServer.Sheet.Category
+  alias VmsServer.Sheet.{Player, Race, Character, Chronicle, SubCategory}
   use ExMachina.Ecto, repo: VmsServer.Repo
 
   def player_factory do
@@ -38,6 +39,21 @@ defmodule VmsServer.Factory do
       race_id: race_id,
       player_id: player_id,
       chronicle_id: chronicle_id
+    }
+  end
+
+  def sub_category_factory do
+    %SubCategory{
+      type: List.first(SubCategory.type_enum())
+    }
+  end
+
+  def category_factory do
+    %SubCategory{id: sub_category_id} = insert(:sub_category)
+
+    %Category{
+      sub_category_id: sub_category_id,
+      type: Enum.random(Category.type_enum())
     }
   end
 end
