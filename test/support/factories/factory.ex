@@ -8,7 +8,9 @@ defmodule VmsServer.Factory do
     Chronicle,
     SubCategory,
     Characteristics,
-    CharacteristicsLevel
+    CharacteristicsLevel,
+    DynamicCharacteristics,
+    DynamicCharacteristicsLevel
   }
 
   use ExMachina.Ecto, repo: VmsServer.Repo
@@ -85,6 +87,28 @@ defmodule VmsServer.Factory do
       character_id: character_id,
       characteristic_id: characteristic_id,
       level: Enum.random(0..5)
+    }
+  end
+
+  def dynamic_characteristics_factory do
+    %Category{id: category_id} = insert(:category)
+
+    %DynamicCharacteristics{
+      name: "Brawler",
+      description: "Fight",
+      category_id: category_id
+    }
+  end
+
+  def dynamic_characteristics_level_factory do
+    %Character{id: character_id} = insert(:character)
+    %DynamicCharacteristics{id: dynamic_characteristic_id} = insert(:dynamic_characteristics)
+
+    %DynamicCharacteristicsLevel{
+      character_id: character_id,
+      characteristic_id: dynamic_characteristic_id,
+      level: Enum.random(1..10),
+      used: Enum.random(0..5)
     }
   end
 end
