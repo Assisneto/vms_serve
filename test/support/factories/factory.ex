@@ -10,7 +10,8 @@ defmodule VmsServer.Factory do
     Characteristics,
     CharacteristicsLevel,
     DynamicCharacteristics,
-    DynamicCharacteristicsLevel
+    DynamicCharacteristicsLevel,
+    RaceCharacteristics
   }
 
   use ExMachina.Ecto, repo: VmsServer.Repo
@@ -109,6 +110,16 @@ defmodule VmsServer.Factory do
       characteristic_id: dynamic_characteristic_id,
       level: Enum.random(1..10),
       used: Enum.random(0..5)
+    }
+  end
+
+  def race_characteristics_factory do
+    %Character{id: character_id} = insert(:character)
+
+    %RaceCharacteristics{
+      key: "Agility",
+      value: "High",
+      character_id: character_id
     }
   end
 end
