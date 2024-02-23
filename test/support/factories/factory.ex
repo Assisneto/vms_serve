@@ -1,6 +1,16 @@
 defmodule VmsServer.Factory do
   alias VmsServer.Sheet.Category
-  alias VmsServer.Sheet.{Player, Race, Character, Chronicle, SubCategory}
+
+  alias VmsServer.Sheet.{
+    Player,
+    Race,
+    Character,
+    Chronicle,
+    SubCategory,
+    Characteristics,
+    CharacteristicsLevel
+  }
+
   use ExMachina.Ecto, repo: VmsServer.Repo
 
   def player_factory do
@@ -54,6 +64,27 @@ defmodule VmsServer.Factory do
     %Category{
       sub_category_id: sub_category_id,
       type: Enum.random(Category.type_enum())
+    }
+  end
+
+  def characteristics_factory do
+    %Category{id: category_id} = insert(:category)
+
+    %Characteristics{
+      name: "Dexterity",
+      description: "Defines the character's agility level",
+      category_id: category_id
+    }
+  end
+
+  def characteristics_level_factory do
+    %Character{id: character_id} = insert(:character)
+    %Characteristics{id: characteristic_id} = insert(:Characteristics)
+
+    %CharacteristicsLevel{
+      character_id: character_id,
+      characteristic_id: characteristic_id,
+      level: Enum.random(0..5)
     }
   end
 end
