@@ -3,7 +3,7 @@ defmodule VmsServer.Sheet.DynamicCharacteristicsTest do
   use VmsServer.DataCase
 
   alias VmsServer.Sheet.DynamicCharacteristics
-  alias VmsServer.Factory
+  import VmsServer.Factory
 
   describe "DynamicCharacteristics changesets" do
     test "validates presence of required fields" do
@@ -16,7 +16,7 @@ defmodule VmsServer.Sheet.DynamicCharacteristicsTest do
     end
 
     test "creates a dynamic characteristic with valid data" do
-      category = Factory.insert(:category)
+      category = insert(:category)
 
       attrs = %{
         name: "Agility",
@@ -34,7 +34,7 @@ defmodule VmsServer.Sheet.DynamicCharacteristicsTest do
 
     test "updates a dynamic characteristic's description" do
       dynamic_characteristic =
-        Factory.insert(:dynamic_characteristics,
+        insert(:dynamic_characteristics,
           name: "Agility",
           description: "Initial description"
         )

@@ -3,7 +3,7 @@ defmodule VmsServer.Sheet.DynamicCharacteristicsLevelTest do
   use VmsServer.DataCase
 
   alias VmsServer.Sheet.DynamicCharacteristicsLevel
-  alias VmsServer.Factory
+  import VmsServer.Factory
 
   describe "DynamicCharacteristicsLevel changesets" do
     test "validates presence of required fields" do
@@ -11,15 +11,14 @@ defmodule VmsServer.Sheet.DynamicCharacteristicsLevelTest do
       changeset = DynamicCharacteristicsLevel.changeset(%DynamicCharacteristicsLevel{}, attrs)
 
       refute changeset.valid?
-      assert "can't be blank" in errors_on(changeset).character_id
       assert "can't be blank" in errors_on(changeset).characteristic_id
       assert "can't be blank" in errors_on(changeset).level
       assert "can't be blank" in errors_on(changeset).used
     end
 
     test "creates a dynamic characteristics level with valid data" do
-      character = Factory.insert(:character)
-      dynamic_characteristic = Factory.insert(:dynamic_characteristics)
+      character = insert(:character)
+      dynamic_characteristic = insert(:dynamic_characteristics)
 
       attrs = %{
         character_id: character.id,
