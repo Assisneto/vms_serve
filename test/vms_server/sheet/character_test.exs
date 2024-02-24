@@ -63,7 +63,7 @@ defmodule VmsServer.Sheet.CharacterTest do
             level: 5
           }
         ],
-        dynamic_characteristics_level: [
+        dynamic_characteristics_levels: [
           %{
             characteristic_id: dynamic_characteristic.id,
             level: 4,
@@ -78,9 +78,9 @@ defmodule VmsServer.Sheet.CharacterTest do
 
       assert length(character.characteristics_levels) == 1
       assert Enum.all?(character.characteristics_levels, fn cl -> cl.level == 5 end)
-      assert length(character.dynamic_characteristics_level) == 1
+      assert length(character.dynamic_characteristics_levels) == 1
 
-      assert Enum.all?(character.dynamic_characteristics_level, fn dcl ->
+      assert Enum.all?(character.dynamic_characteristics_levels, fn dcl ->
                dcl.level == 4 and dcl.used == 2
              end)
     end
@@ -94,6 +94,68 @@ defmodule VmsServer.Sheet.CharacterTest do
 
       assert updated_character.name == updated_attrs.name
       assert updated_character.bashing == updated_attrs.bashing
+    end
+
+    test "updates a character with characteristics levels and dynamic characteristics levels" do
+      race = insert(:race)
+      player = insert(:player)
+      chronicle = insert(:chronicle)
+      characteristic = insert(:characteristics)
+      dynamic_characteristic = insert(:dynamic_characteristics)
+
+      initial_attrs = %{
+        name: "Aragorn",
+        race_id: race.id,
+        player_id: player.id,
+        chronicle_id: chronicle.id,
+        bashing: 5,
+        lethal: 3,
+        aggravated: 1,
+        characteristics_levels: [
+          %{
+            characteristic_id: characteristic.id,
+            level: 5
+          }
+        ],
+        dynamic_characteristics_levels: [
+          %{
+            characteristic_id: dynamic_characteristic.id,
+            level: 4,
+            used: 2
+          }
+        ]
+      }
+
+      {:ok, character} = Character.create_changeset(%Character{}, initial_attrs) |> Repo.insert()
+
+      character =
+        Repo.preload(character, [:characteristics_levels, :dynamic_characteristics_levels])
+
+      updated_attrs = %{
+        characteristics_levels: [
+          %{
+            # Mantém o ID original para clareza
+            characteristic_id: characteristic.id,
+            level: 6
+          }
+        ],
+        dynamic_characteristics_levels: [
+          %{
+            # Mantém o ID original para clareza
+            characteristic_id: dynamic_characteristic.id,
+            level: 5,
+            used: 3
+          }
+        ]
+      }
+
+      {:ok, updated_character} =
+        character |> Character.update_changeset(updated_attrs) |> Repo.update()
+
+      assert List.first(updated_character.characteristics_levels).level == 6
+
+      assert List.first(updated_character.dynamic_characteristics_levels).level == 5 and
+               List.first(updated_character.dynamic_characteristics_levels).used == 3
     end
   end
 end

@@ -13,7 +13,8 @@ defmodule VmsServer.Sheet.DynamicCharacteristicsLevel do
     timestamps()
   end
 
-  @required_fields [:character_id, :characteristic_id, :level, :used]
+  @cast_fields [:character_id]
+  @required_fields [:characteristic_id, :level, :used]
 
   @spec changeset(DynamicCharacteristicsLevel.t(), %{
           :character_id => Ecto.UUID.t(),
@@ -23,7 +24,7 @@ defmodule VmsServer.Sheet.DynamicCharacteristicsLevel do
         }) :: Ecto.Changeset.t()
   def changeset(dynamic_characteristic_level \\ %__MODULE__{}, attrs) do
     dynamic_characteristic_level
-    |> cast(attrs, @required_fields)
+    |> cast(attrs, @required_fields ++ @cast_fields)
     |> validate_required(@required_fields)
     |> foreign_key_constraint(:character_id)
     |> foreign_key_constraint(:characteristic_id)
