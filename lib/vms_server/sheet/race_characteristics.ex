@@ -12,15 +12,15 @@ defmodule VmsServer.Sheet.RaceCharacteristics do
     timestamps()
   end
 
-  @common_fields [:value]
-  @required_fields [:key, :character_id]
+  @common_fields [:value, :character_id]
+  @required_fields [:key]
 
-  @spec create_changeset(RaceCharacteristics.t(), %{
+  @spec changeset(RaceCharacteristics.t(), %{
           :value => String.t(),
           :key => String.t(),
           :character_id => Ecto.UUID.t()
         }) :: Ecto.Changeset.t()
-  def create_changeset(race_characteristic, attrs) do
+  def changeset(race_characteristic \\ %__MODULE__{}, attrs) do
     race_characteristic
     |> cast(attrs, @required_fields ++ @common_fields)
     |> validate_required(@required_fields)

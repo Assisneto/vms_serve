@@ -42,12 +42,13 @@ defmodule VmsServer.Sheet.CharacterTest do
       assert character.aggravated == attrs.aggravated
     end
 
-    test "creates characteristics levels, and dynamic characteristics levels inside of character changeset" do
+    test "creates a character with characteristics levels, dynamic characteristics levels, and race characteristics inside of character changeset" do
       race = insert(:race)
       player = insert(:player)
       chronicle = insert(:chronicle)
       characteristic = insert(:characteristics)
       dynamic_characteristic = insert(:dynamic_characteristics)
+      race_characteristic_attrs = %{key: "Agility", value: "High"}
 
       attrs = %{
         name: "Aragorn",
@@ -69,7 +70,8 @@ defmodule VmsServer.Sheet.CharacterTest do
             level: 4,
             used: 2
           }
-        ]
+        ],
+        race_characteristics: [race_characteristic_attrs]
       }
 
       changeset = Character.create_changeset(%Character{}, attrs)
@@ -83,6 +85,11 @@ defmodule VmsServer.Sheet.CharacterTest do
       assert Enum.all?(character.dynamic_characteristics_levels, fn dcl ->
                dcl.level == 4 and dcl.used == 2
              end)
+
+      assert length(character.race_characteristics) == 1
+
+      assert List.first(character.race_characteristics).key == "Agility"
+      assert List.first(character.race_characteristics).value == "High"
     end
 
     test "updates a character's stats" do
@@ -96,12 +103,13 @@ defmodule VmsServer.Sheet.CharacterTest do
       assert updated_character.bashing == updated_attrs.bashing
     end
 
-    test "updates a character with characteristics levels and dynamic characteristics levels" do
+    test "updates a character with characteristics levels and dynamic characteristics levels and race characteristics" do
       race = insert(:race)
       player = insert(:player)
       chronicle = insert(:chronicle)
       characteristic = insert(:characteristics)
       dynamic_characteristic = insert(:dynamic_characteristics)
+      race_characteristic_attrs = %{key: "generation", value: ""}
 
       initial_attrs = %{
         name: "Aragorn",
@@ -114,37 +122,46 @@ defmodule VmsServer.Sheet.CharacterTest do
         characteristics_levels: [
           %{
             characteristic_id: characteristic.id,
-            level: 5
+            level: 1
           }
         ],
         dynamic_characteristics_levels: [
           %{
             characteristic_id: dynamic_characteristic.id,
-            level: 4,
-            used: 2
+            level: 1,
+            used: 1
           }
-        ]
+        ],
+        race_characteristics: [race_characteristic_attrs]
       }
 
       {:ok, character} = Character.create_changeset(%Character{}, initial_attrs) |> Repo.insert()
 
       character =
-        Repo.preload(character, [:characteristics_levels, :dynamic_characteristics_levels])
+        Repo.preload(character, [
+          :characteristics_levels,
+          :dynamic_characteristics_levels,
+          :race_characteristics
+        ])
 
       updated_attrs = %{
         characteristics_levels: [
           %{
-            # Mantém o ID original para clareza
-            characteristic_id: characteristic.id,
+            id: List.first(character.characteristics_levels).id,
             level: 6
           }
         ],
         dynamic_characteristics_levels: [
           %{
-            # Mantém o ID original para clareza
-            characteristic_id: dynamic_characteristic.id,
+            id: List.first(character.dynamic_characteristics_levels).id,
             level: 5,
             used: 3
+          }
+        ],
+        race_characteristics: [
+          %{
+            id: List.first(character.race_characteristics).id,
+            value: "5"
           }
         ]
       }
@@ -156,6 +173,10 @@ defmodule VmsServer.Sheet.CharacterTest do
 
       assert List.first(updated_character.dynamic_characteristics_levels).level == 5 and
                List.first(updated_character.dynamic_characteristics_levels).used == 3
+
+      assert List.first(updated_character.race_characteristics).value == "5" and
+               List.first(updated_character.race_characteristics).key ==
+                 race_characteristic_attrs.key
     end
   end
 end

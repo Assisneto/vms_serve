@@ -9,7 +9,7 @@ defmodule VmsServer.Sheet.RaceCharacteristicsTest do
     test "creates a valid changeset with required fields" do
       character = insert(:character)
       attrs = %{key: "Agility", value: "High", character_id: character.id}
-      changeset = RaceCharacteristics.create_changeset(%RaceCharacteristics{}, attrs)
+      changeset = RaceCharacteristics.changeset(%RaceCharacteristics{}, attrs)
       {:ok, race_characteristics} = Repo.insert(changeset)
 
       assert race_characteristics.key == "Agility"
@@ -17,11 +17,10 @@ defmodule VmsServer.Sheet.RaceCharacteristicsTest do
     end
 
     test "ensures key and character_id are required" do
-      changeset = RaceCharacteristics.create_changeset(%RaceCharacteristics{}, %{value: "Medium"})
+      changeset = RaceCharacteristics.changeset(%RaceCharacteristics{}, %{value: "Medium"})
 
       refute changeset.valid?
-      assert errors_on(changeset) |> Map.has_key?(:key)
-      assert errors_on(changeset) |> Map.has_key?(:character_id)
+      assert "can't be blank" in errors_on(changeset).key
     end
   end
 end

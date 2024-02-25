@@ -6,9 +6,9 @@ defmodule VmsServer.Sheet.Character do
     Player,
     Race,
     Chronicle,
-    Characteristic,
     CharacteristicsLevel,
-    DynamicCharacteristicsLevel
+    DynamicCharacteristicsLevel,
+    RaceCharacteristics
   }
 
   @primary_key {:id, Ecto.UUID, autogenerate: true}
@@ -20,10 +20,10 @@ defmodule VmsServer.Sheet.Character do
     belongs_to :race, Race
     belongs_to :player, Player
     belongs_to :chronicle, Chronicle
-    has_many :characteristics_levels, CharacteristicsLevel, on_replace: :delete_if_exists
+    has_many :characteristics_levels, CharacteristicsLevel
+    has_many :race_characteristics, RaceCharacteristics
 
-    has_many :dynamic_characteristics_levels, DynamicCharacteristicsLevel,
-      on_replace: :delete_if_exists
+    has_many :dynamic_characteristics_levels, DynamicCharacteristicsLevel
 
     timestamps()
   end
@@ -60,6 +60,7 @@ defmodule VmsServer.Sheet.Character do
     |> validate_required(@required_fields_create)
     |> cast_assoc(:characteristics_levels, with: &CharacteristicsLevel.changeset/2)
     |> cast_assoc(:dynamic_characteristics_levels, with: &DynamicCharacteristicsLevel.changeset/2)
+    |> cast_assoc(:race_characteristics, with: &RaceCharacteristics.changeset/2)
     |> foreign_key_constraint(:storyteller_id)
     |> foreign_key_constraint(:race_id)
     |> foreign_key_constraint(:player_id)
@@ -89,5 +90,6 @@ defmodule VmsServer.Sheet.Character do
     |> cast(attrs, @optional_fields_update)
     |> cast_assoc(:characteristics_levels, with: &CharacteristicsLevel.changeset/2)
     |> cast_assoc(:dynamic_characteristics_levels, with: &DynamicCharacteristicsLevel.changeset/2)
+    |> cast_assoc(:race_characteristics, with: &RaceCharacteristics.changeset/2)
   end
 end
