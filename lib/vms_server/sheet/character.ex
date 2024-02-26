@@ -50,18 +50,24 @@ defmodule VmsServer.Sheet.Character do
               :used => integer()
             }
           ],
+          :race_characteristics => [
+            %{
+              :value => String.t(),
+              :key => String.t()
+            }
+          ],
           optional(:bashing) => integer(),
           optional(:lethal) => integer(),
           optional(:aggravated) => integer()
         }) :: Ecto.Changeset.t()
-  def create_changeset(character, attrs) do
+  def create_changeset(character \\ %__MODULE__{}, attrs) do
     character
     |> cast(attrs, @required_fields_create ++ @optional_fields_create)
     |> validate_required(@required_fields_create)
     |> cast_assoc(:characteristics_levels, with: &CharacteristicsLevel.changeset/2)
     |> cast_assoc(:dynamic_characteristics_levels, with: &DynamicCharacteristicsLevel.changeset/2)
     |> cast_assoc(:race_characteristics, with: &RaceCharacteristics.changeset/2)
-    |> foreign_key_constraint(:storyteller_id)
+    |> foreign_key_constraint(:chronicle_id)
     |> foreign_key_constraint(:race_id)
     |> foreign_key_constraint(:player_id)
   end
