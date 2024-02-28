@@ -29,6 +29,7 @@ defmodule VmsServer.Repo.Migrations.CreateCategoriesTable do
     create table(:categories, primary_key: false) do
       add :id, :uuid, primary_key: true
       add :sub_category_id, references(:sub_categories, type: :uuid), null: false
+      add :race_id, references(:race, type: :uuid)
       add :type, :categories_type, null: false
     end
   end

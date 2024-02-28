@@ -43,5 +43,18 @@ defmodule VmsServer.Sheet.CategoriesTest do
 
       assert category.type == attrs.type
     end
+
+    test "creates a category with race_id" do
+      sub_category = insert(:sub_category)
+      race = insert(:race)
+
+      attrs = %{sub_category_id: sub_category.id, type: :physical, race_id: race.id}
+      changeset = Category.changeset(%Category{}, attrs)
+      assert changeset.valid?
+      {:ok, category} = Repo.insert(changeset)
+
+      assert category.type == attrs.type
+      assert category.race_id == attrs.race_id
+    end
   end
 end

@@ -1,12 +1,11 @@
 defmodule VmsServer.Factory do
-  alias VmsServer.Sheet.Category
-
   alias VmsServer.Sheet.{
     Player,
     Race,
     Character,
     Chronicle,
     SubCategory,
+    Category,
     Characteristics,
     CharacteristicsLevel,
     DynamicCharacteristics,
