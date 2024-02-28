@@ -45,5 +45,25 @@ defmodule VmsServer.Sheet.DynamicCharacteristicsTest do
 
       assert updated_dynamic_characteristic.description == updated_attrs.description
     end
+
+    test "creates a dynamic characteristic with race_id" do
+      category = insert(:category)
+      race = insert(:race)
+
+      attrs = %{
+        name: "Agility",
+        category_id: category.id,
+        race_id: race.id,
+        description: "Defines the character's agility"
+      }
+
+      changeset = DynamicCharacteristics.create_changeset(%DynamicCharacteristics{}, attrs)
+      assert changeset.valid?
+      {:ok, dynamic_characteristic} = Repo.insert(changeset)
+
+      assert dynamic_characteristic.name == attrs.name
+      assert dynamic_characteristic.description == attrs.description
+      assert dynamic_characteristic.race_id == attrs.race_id
+    end
   end
 end

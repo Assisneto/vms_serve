@@ -5,20 +5,20 @@ Enum sub_categories_type {
 }
 
 Enum categories_type {
-  Physical
-  Social
-  Mental
-  Talents
-  Skills
-  Knowledge
-  Flaws
-  Merits
-  Backgrounds
-  Virtues // vampire
-  Disciplines // vampire
-  Gifts // werewolf
-  Renown // werewolf
-  Spheres // mage
+  physical
+  social
+  mental
+  talents
+  skills
+  knowledges
+  flaws
+  merits
+  backgrounds
+  virtues // vampire
+  disciplines // vampire
+  gifts // werewolf
+  renown // werewolf
+  spheres // mage
   others
 }
 
@@ -92,7 +92,7 @@ Table characteristics {
   category_id uuid [ref: > category.id]
   name varchar
   description text
-  // race_id uuid [ref: > race.id]
+  race_id uuid [ref: > race.id]
 }
 
 Table characteristics_level {
@@ -107,7 +107,7 @@ Table dynamics_characteristics {
   name varchar
   description text
   category_id uuid [ref: > category.id]
-  // race_id uuid [ref: > race.id]
+  race_id uuid [ref: > race.id]
 }
 
 Table dynamics_characteristics_level {

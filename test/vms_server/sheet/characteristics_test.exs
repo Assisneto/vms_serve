@@ -41,5 +41,25 @@ defmodule VmsServer.Sheet.CharacteristicsTest do
 
       assert updated_characteristic.description == updated_attrs.description
     end
+
+    test "creates a characteristics with race_id" do
+      category = insert(:category)
+      race = insert(:race)
+
+      attrs = %{
+        name: "Speed",
+        category_id: category.id,
+        race_id: race.id,
+        description: "Defines the character's speed"
+      }
+
+      changeset = Characteristics.create_changeset(%Characteristics{}, attrs)
+      assert changeset.valid?
+      {:ok, characteristics} = Repo.insert(changeset)
+
+      assert characteristics.name == attrs.name
+      assert characteristics.description == attrs.description
+      assert characteristics.race_id == attrs.race_id
+    end
   end
 end

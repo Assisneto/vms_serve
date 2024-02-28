@@ -4,20 +4,20 @@ defmodule VmsServer.Repo.Migrations.CreateCategoriesTable do
   def change do
     create_query = """
     CREATE TYPE categories_type AS ENUM (
-      'Physical',
-      'Social',
-      'Mental',
-      'Talents',
-      'Skills',
-      'Knowledge',
-      'Flaws',
-      'Merits',
-      'Backgrounds',
-      'Virtues', -- vampire
-      'Disciplines', -- vampire
-      'Gifts', -- werewolf
-      'Renown', -- werewolf
-      'Spheres', -- mage
+      'physical',
+      'social',
+      'mental',
+      'talents',
+      'skills',
+      'knowledges',
+      'flaws',
+      'merits',
+      'backgrounds',
+      'virtues', -- vampire
+      'disciplines', -- vampire
+      'gifts', -- werewolf
+      'renown', -- werewolf
+      'spheres', -- mage
       'others'
     );
     """

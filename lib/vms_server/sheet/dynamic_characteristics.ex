@@ -1,19 +1,20 @@
 defmodule VmsServer.Sheet.DynamicCharacteristics do
   use VmsServer.Schema
   import Ecto.Changeset
-  alias VmsServer.Sheet.Category
+  alias VmsServer.Sheet.{Category, Race}
 
   @primary_key {:id, Ecto.UUID, autogenerate: true}
   schema "dynamics_characteristics" do
     field :name, :string
     field :description, :string
     belongs_to :category, Category
+    belongs_to :race, Race
 
     timestamps()
   end
 
   @required_fields [:name, :category_id]
-  @optional_fields [:description]
+  @optional_fields [:description, :race_id]
 
   @spec create_changeset(DynamicCharacteristic.t(), %{
           :name => String.t(),

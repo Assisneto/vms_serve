@@ -5,6 +5,7 @@ defmodule VmsServer.Repo.Migrations.CreateCharacteristicsTable do
     create table(:characteristics, primary_key: false) do
       add :id, :uuid, primary_key: true
       add :category_id, references(:categories, type: :uuid), null: false
+      add :race_id, references(:race, type: :uuid)
       add :name, :string, null: false
       add :description, :text
       timestamps()

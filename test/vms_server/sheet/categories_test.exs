@@ -36,7 +36,7 @@ defmodule VmsServer.Sheet.CategoriesTest do
 
     test "creates a category with valid data" do
       sub_category = insert(:sub_category)
-      attrs = %{sub_category_id: sub_category.id, type: :Physical}
+      attrs = %{sub_category_id: sub_category.id, type: :physical}
       changeset = Category.changeset(%Category{}, attrs)
       assert changeset.valid?
       {:ok, category} = Repo.insert(changeset)

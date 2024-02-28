@@ -7,6 +7,7 @@ defmodule VmsServer.Repo.Migrations.CreateDynamicsCharacteristicsTable do
       add :name, :string, null: false
       add :description, :text
       add :category_id, references(:categories, type: :uuid), null: false
+      add :race_id, references(:race, type: :uuid)
       timestamps()
     end
   end

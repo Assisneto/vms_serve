@@ -9,20 +9,20 @@ defmodule VmsServer.Sheet.Category do
   alias VmsServer.Sheet.SubCategory
 
   @type_enum [
-    :Physical,
-    :Social,
-    :Mental,
-    :Talents,
-    :Skills,
-    :Knowledge,
-    :Flaws,
-    :Merits,
-    :Backgrounds,
-    :Virtues,
-    :Disciplines,
-    :Gifts,
-    :Renown,
-    :Spheres,
+    :physical,
+    :social,
+    :mental,
+    :talents,
+    :skills,
+    :knowledges,
+    :flaws,
+    :merits,
+    :backgrounds,
+    :virtues,
+    :disciplines,
+    :gifts,
+    :renown,
+    :spheres,
     :others
   ]
 
