@@ -7,6 +7,8 @@ defmodule VmsServerWeb.Router do
 
   scope "/api", VmsServerWeb do
     pipe_through :api
+
+    get "/sheet/characteristics/:race_id", SheetController, :get_characteristics_fields
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

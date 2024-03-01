@@ -1,0 +1,51 @@
+FORMAT: 1A
+HOST: http://localhost:4000
+
+# VMS (Vampire Management System)
+
+API of the VMS app.
+
+## Sheet Collection [/sheet]
+
+### Retrieve the fields required to construct a character sheet for a specific race. [GET /sheet/characteristics/{race_id}]
+
+Retrieves the fields necessary for constructing a character sheet for a specific race.
+
++ Parameters
+    + race_id: `3677f6b7-0318-46ff-86e4-86feb1e92449` (string) - The race ID
+
++ Request (application/json)
+    + Header
+
+            Accept: application/json
+
++ Response 200 (application/json)
+    + Attributes (array[Category])
+
++ Response 204 (application/json)
+    + Body
+
+            {
+            }
+
+# Data Structures
+
+## Category (object)
+- id: `8560cf3d-8107-4a21-b36d-2517ff0b81be` (string) - The ID of the Category
+- type: `physical` (string) - The type of the Category
+- static_characteristics: (array[Characteristic], optional) - A list of static characteristics belonging to the category
+- dynamic_characteristics: (array[DynamicCharacteristic], optional) - A list of dynamic characteristics belonging to the category
+
+## Characteristic (object)
+- id: `21abcab3-4a51-4695-8339-7406f9240408` (string) - The ID of the Characteristic
+- name: `strength` (string) - The name of the Characteristic
+- description: `` (string, optional) - The description of the Characteristic
+- inserted_at: `2024-02-29T15:42:02Z` (string) - The datetime when the Characteristic was inserted
+- updated_at: `2024-02-29T15:42:02Z` (string) - The datetime when the Characteristic was last updated
+
+## DynamicCharacteristic (object)
+- id: `21abcab3-4a51-4695-8339-7406f9240408` (string) - The ID of the Characteristic
+- name: `willpower` (string) - The name of the Characteristic
+- description: `` (string, optional) - The description of the Characteristic
+- inserted_at: `2024-02-29T15:42:02Z` (string) - The datetime when the Characteristic was inserted
+- updated_at: `2024-02-29T15:42:02Z` (string) - The datetime when the Characteristic was last updated
