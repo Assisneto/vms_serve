@@ -56,7 +56,7 @@ defmodule VmsServer.Factory do
 
   def sub_category_factory do
     %SubCategory{
-      type: List.first(SubCategory.type_enum())
+      type: Enum.random(SubCategory.type_enum())
     }
   end
 
@@ -65,7 +65,19 @@ defmodule VmsServer.Factory do
 
     %Category{
       sub_category_id: sub_category_id,
-      type: Enum.random(Category.type_enum())
+      type: Enum.random(Category.type_enum()),
+      race_id: nil
+    }
+  end
+
+  def category_with_race_factory do
+    %SubCategory{id: sub_category_id} = insert(:sub_category)
+    %Race{id: race_id} = insert(:race)
+
+    %Category{
+      sub_category_id: sub_category_id,
+      type: Enum.random(Category.type_enum()),
+      race_id: race_id
     }
   end
 
