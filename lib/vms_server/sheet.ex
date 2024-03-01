@@ -1,4 +1,5 @@
 defmodule VmsServer.Sheet do
+  alias VmsServer.Sheet.Queries
   alias VmsServer.Repo
 
   alias VmsServer.Sheet.{
@@ -43,5 +44,25 @@ defmodule VmsServer.Sheet do
   def create_character(attrs) do
     Character.create_changeset(attrs)
     |> Repo.insert()
+  end
+
+  @type characteristic :: %{
+          id: String.t(),
+          name: String.t(),
+          description: String.t(),
+          inserted_at: DateTime.t(),
+          updated_at: DateTime.t()
+        }
+
+  @type category :: %{
+          id: String.t(),
+          type: String.t(),
+          dynamic_characteristics: [characteristic],
+          static_characteristics: [characteristic]
+        }
+
+  @spec get_characteristics_fields(race_id: Ecto.UUID.t()) :: [category] | []
+  def get_characteristics_fields(race_id) do
+    Queries.get_all_characteristics_by_race_id(race_id)
   end
 end

@@ -236,4 +236,33 @@ defmodule VmsServer.SheetTest do
       assert "does not exist" in errors_on(changeset).storyteller_id
     end
   end
+
+  describe "get_characteristics_fields/1" do
+    setup do
+      race = insert(:race, name: "vampire")
+      category = insert(:category_with_race, %{race_id: race.id})
+      _characteristic = insert(:characteristics, %{category_id: category.id})
+      _dynamic_characteristic = insert(:dynamic_characteristics, %{category_id: category.id})
+
+      {:ok, race: race}
+    end
+
+    test "returns characteristics fields for the given race id", %{race: race} do
+      results = Sheet.get_characteristics_fields(race.id)
+
+      assert length(results) > 0
+
+      Enum.each(results, fn {category, _static_characteristics, _dynamic_characteristics} ->
+        assert category.race_id == race.id or is_nil(category.race_id) or category.type == :others
+      end)
+    end
+
+    test "returns an empty list for an unknown race id", %{race: _race} do
+      unknown_race_id = "00000000-0000-0000-0000-000000000000"
+
+      results = Sheet.get_characteristics_fields(unknown_race_id)
+
+      assert Enum.empty?(results)
+    end
+  end
 end
