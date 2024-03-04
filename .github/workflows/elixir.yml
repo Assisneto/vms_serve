@@ -25,24 +25,49 @@ jobs:
         otp: [26.0]
 
     steps:
+    - name: Build-DB
+      run: docker-compose build
+      
+    - name: Create-DB
+      run: docker-compose up -d db
+      
     - uses: actions/checkout@v3
     - name: Set up Elixir
       uses: erlef/setup-beam@61e01a43a562a89bfc54c7f9a378ff67b03e4a21
       with:
         elixir-version:  ${{ matrix.elixir }} 
         otp-version:  ${{ matrix.otp }} 
-    - name: List files
-      run: ls -R
+        
     - name: Restore dependencies cache
       uses: actions/cache@v3
       with:
         path: deps
         key: ${{ runner.os }}-mix-${{ hashFiles('mix.lock') }}
-    - name: Build-DB
-      run: docker-compose build
-    - name: Create-DB
-      run: docker-compose up -d db
+        
     - name: Install dependencies
+      if: steps.cache-deps.outputs.cache-hit != 'true'
       run: mix deps.get
+
+    - name: Check unused dependencies
+      run: mix deps.unlock --check-unused
+
+    - name: Check outdated dependencies
+      run: mix hex.outdated
+
+    - name: Check formatting
+      run: mix format --check-formatted
+      
+    - name: Cache build
+      uses: actions/cache@v3
+      id: cache-build
+      with:
+        path: _build/test
+        key: ${{ runner.os }}-mix-${{ hashFiles('mix.lock', 'mix.exs', 'config/*.exs') }}
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
     - name: Run tests
       run: mix test
