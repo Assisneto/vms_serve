@@ -9,6 +9,8 @@ defmodule VmsServerWeb.Router do
     pipe_through :api
 
     get "/sheet/characteristics/:race_id", SheetController, :get_characteristics_fields
+
+    resources "/sheet", SheetController, only: [:create]
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
