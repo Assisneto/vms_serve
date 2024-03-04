@@ -90,9 +90,9 @@ Table category {
 Table characteristics {
   id uuid [pk]
   category_id uuid [ref: > category.id]
+  character_id uuid [ref: > character.id]
   name varchar
   description text
-  race_id uuid [ref: > race.id]
 }
 
 Table characteristics_level {
@@ -107,7 +107,7 @@ Table dynamics_characteristics {
   name varchar
   description text
   category_id uuid [ref: > category.id]
-  race_id uuid [ref: > race.id]
+  character_id uuid [ref: > character.id]
 }
 
 Table dynamics_characteristics_level {
