@@ -37,7 +37,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: deps
-        key: ${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-mix-${{ hashFiles('**/mix.lock') }}
+        key: ${{ runner.os }}-mix-${{ hashFiles('mix.lock') }}
     - name: Build-DB
       run: docker-compose build
     - name: Create-DB
