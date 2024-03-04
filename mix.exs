@@ -34,18 +34,18 @@ defmodule VmsServer.MixProject do
   defp deps do
     [
       {:phoenix, "~> 1.7.11"},
-      {:phoenix_ecto, "~> 4.4"},
+      {:phoenix_ecto, "~> 4.5.0"},
       {:ecto_sql, "~> 3.10"},
-      {:postgrex, ">= 0.0.0"},
+      {:postgrex, ">= 0.17.5"},
       {:phoenix_live_dashboard, "~> 0.8.3"},
-      {:swoosh, "~> 1.5"},
-      {:finch, "~> 0.13"},
+      {:swoosh, "~> 1.15.3"},
+      {:finch, "~> 0.18"},
       {:telemetry_metrics, "~> 0.6"},
       {:telemetry_poller, "~> 1.0"},
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
-      {:bandit, "~> 1.2"},
-      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:bandit, "~> 1.2.3"},
+      {:credo, "~> 1.7.5", only: [:dev, :test], runtime: false},
       {:ex_machina, "~> 2.7.0", only: :test},
       {:excoveralls, "~> 0.18", only: :test}
     ]
