@@ -24,14 +24,15 @@ jobs:
         elixir: [1.16.1]
         otp: [26.0]
 
-    steps:
+    steps:      
+    - uses: actions/checkout@v3
+    
     - name: Build-DB
       run: docker-compose build
       
     - name: Create-DB
       run: docker-compose up -d db
-      
-    - uses: actions/checkout@v3
+    
     - name: Set up Elixir
       uses: erlef/setup-beam@61e01a43a562a89bfc54c7f9a378ff67b03e4a21
       with:
