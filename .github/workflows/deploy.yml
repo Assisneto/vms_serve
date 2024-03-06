@@ -64,4 +64,5 @@ jobs:
             export PHX_HOST=${{ secrets.PHX_HOST }}
             export PORT=${{ secrets.PORT }}
             chmod +x _build/prod/rel/vms_server/bin/vms_server
+            _build/prod/rel/vms_server/bin/vms_server eval 'MyApp.Release.migrate()'
             nohup _build/prod/rel/vms_server/bin/vms_server start > nohup.out 2> nohup.err &
