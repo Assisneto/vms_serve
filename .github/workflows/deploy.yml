@@ -1,0 +1,67 @@
+name: Deploy
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build:
+    name: Generate binaries
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        elixir: [1.16.1]
+        otp: [26.0]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Elixir
+        uses: erlef/setup-beam@61e01a43a562a89bfc54c7f9a378ff67b03e4a21
+        with:
+          elixir-version: ${{ matrix.elixir }}
+          otp-version: ${{ matrix.otp }}
+
+      - name: Restore dependencies cache
+        uses: actions/cache@v3
+        with:
+          path: deps
+          key: ${{ runner.os }}-mix-${{ hashFiles('mix.lock') }}
+
+      - name: Install dependencies
+        if: steps.cache-deps.outputs.cache-hit != 'true'
+        run: mix deps.get
+
+      - name: Cache build
+        uses: actions/cache@v3
+        id: cache-build
+        with:
+          path: _build/test
+          key: ${{ runner.os }}-mix-${{ hashFiles('mix.lock', 'mix.exs', 'config/*.exs') }}
+
+      - name: Generate binaries
+        run: MIX_ENV=prod mix release
+
+      - name: ssh deploy
+        uses: easingthemes/ssh-deploy@v5.0.3
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          REMOTE_USER: ${{ secrets.REMOTE_USER }}
+          TARGET: /home/${{ secrets.REMOTE_USER }}
+
+      - name: executing remote ssh commands using password
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            export DATABASE_URL=${{ secrets.DATABASE_URL }}
+            export PHX_SERVER=${{ secrets.PHX_SERVER }}
+            export SECRET_KEY_BASE=${{ secrets.SECRET_KEY_BASE }}
+            export PHX_HOST=${{ secrets.PHX_HOST }}
+            export PORT=${{ secrets.PORT }}
+            chmod +x _build/prod/rel/vms_server/bin/vms_server
+            nohup _build/prod/rel/vms_server/bin/vms_server start > nohup.out 2> nohup.err &
