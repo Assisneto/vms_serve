@@ -6,8 +6,6 @@
 name: Elixir CI
 
 on:
-  push:
-    branches: ["main"]
   pull_request:
     branches: ["main"]
 
@@ -66,8 +64,3 @@ jobs:
 
       - name: Run tests
         run: mix test
-
-  deploy_EC2:
-    needs: build
-    uses: ./.github/workflows/EC2.yml
-    secrets: inherit
