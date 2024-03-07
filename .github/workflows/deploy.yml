@@ -65,7 +65,7 @@ jobs:
             export PORT=${{ secrets.PORT }}
             chmod +x _build/prod/rel/vms_server/bin/vms_server
 
-            kill $(lsof -ti tcp:4000) || echo "Nenhum processo para matar na porta 4000."
+            kill $(lsof -ti tcp:${{ secrets.PORT }}) || echo "Nenhum processo para matar."
 
             _build/prod/rel/vms_server/bin/vms_server eval 'VmsServer.Release.migrate()'
 
