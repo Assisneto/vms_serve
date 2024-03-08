@@ -87,7 +87,8 @@ defmodule VmsServer.Factory do
     %Characteristics{
       name: "Dexterity",
       description: "Defines the character's agility level",
-      category_id: category_id
+      category_id: category_id,
+      character_id: nil
     }
   end
 
@@ -108,7 +109,8 @@ defmodule VmsServer.Factory do
     %DynamicCharacteristics{
       name: "Brawler",
       description: "Fight",
-      category_id: category_id
+      category_id: category_id,
+      character_id: nil
     }
   end
 
