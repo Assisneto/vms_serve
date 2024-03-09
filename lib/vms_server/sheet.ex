@@ -5,7 +5,9 @@ defmodule VmsServer.Sheet do
   alias VmsServer.Sheet.{
     Player,
     Character,
-    Chronicle
+    Chronicle,
+    Characteristics,
+    CharacteristicsLevel
   }
 
   @spec create_player(%{name: String.t()}) :: {:ok, Player.t()} | {:error, Ecto.Changeset.t()}
@@ -28,22 +30,62 @@ defmodule VmsServer.Sheet do
       |> Repo.insert()
 
   @spec create_character(%{
-          :characteristics_levels => [%{characteristic_id: <<_::288>>, level: integer()}],
-          :chronicle_id => <<_::288>>,
+          :characteristics_levels => [%{characteristic_id: binary(), level: integer()}],
+          :chronicle_id => binary(),
           :dynamic_characteristics_level => [
-            %{characteristic_id: <<_::288>>, level: integer(), used: integer()}
+            %{characteristic_id: binary(), level: integer(), used: integer()}
+          ],
+          :character_specific_characteristics => [
+            %{
+              category_id: binary(),
+              static_characteristics: [%{level: integer(), name: binary()}]
+            }
           ],
           :name => binary(),
-          :player_id => <<_::288>>,
+          :player_id => binary(),
           :race_characteristics => [%{key: binary(), value: binary()}],
-          :race_id => <<_::288>>,
+          :race_id => binary(),
           optional(:aggravated) => integer(),
           optional(:bashing) => integer(),
           optional(:lethal) => integer()
         }) :: {:ok, Character.t()} | {:error, Ecto.Changeset.t()}
   def create_character(attrs) do
-    Character.create_changeset(attrs)
-    |> Repo.insert()
+    with {:ok, character} <- Character.create_changeset(%Character{}, attrs) |> Repo.insert() do
+      Enum.each(attrs.character_specific_characteristics, fn specific_char ->
+        create_specific_characteristic(character.id, specific_char)
+      end)
+
+      {:ok, character}
+    end
+  end
+
+  defp create_specific_characteristic(character_id, %{
+         "category_id" => category_id,
+         "static_characteristics" => characteristics
+       }) do
+    Enum.each(characteristics, fn %{"name" => name, "level" => level} ->
+      characteristic_changeset =
+        Characteristics.create_changeset(%{
+          name: name,
+          character_id: character_id,
+          category_id: category_id
+        })
+
+      case Repo.insert(characteristic_changeset) do
+        {:ok, characteristic} ->
+          characteristics_level_changeset =
+            CharacteristicsLevel.changeset(%{
+              characteristic_id: characteristic.id,
+              level: level,
+              character_id: character_id
+            })
+
+          Repo.insert(characteristics_level_changeset)
+
+        {:error, changeset} ->
+          {:error, changeset}
+      end
+    end)
   end
 
   @type characteristic :: %{
