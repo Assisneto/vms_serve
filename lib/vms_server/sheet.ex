@@ -50,42 +50,64 @@ defmodule VmsServer.Sheet do
           optional(:lethal) => integer()
         }) :: {:ok, Character.t()} | {:error, Ecto.Changeset.t()}
   def create_character(attrs) do
-    with {:ok, character} <- Character.create_changeset(%Character{}, attrs) |> Repo.insert() do
-      Enum.each(attrs.character_specific_characteristics, fn specific_char ->
-        create_specific_characteristic(character.id, specific_char)
+    character_specific_characteristics = Map.get(attrs, :character_specific_characteristics, [])
+    character_changeset = Character.create_changeset(%Character{}, attrs)
+
+    multi =
+      Ecto.Multi.new()
+      |> Ecto.Multi.insert(:character, character_changeset)
+
+    multi =
+      Enum.reduce(character_specific_characteristics, multi, fn specific_char, acc_multi ->
+        create_specific_characteristic_multi(acc_multi, specific_char)
       end)
 
-      {:ok, character}
-    end
+    Repo.transaction(multi)
+    |> handle_character_transaction_result()
   end
 
-  defp create_specific_characteristic(character_id, %{
+  defp create_specific_characteristic_multi(multi, %{
          "category_id" => category_id,
          "static_characteristics" => characteristics
        }) do
-    Enum.each(characteristics, fn %{"name" => name, "level" => level} ->
+    Enum.reduce(characteristics, multi, fn %{"name" => name, "level" => level}, acc_multi ->
       characteristic_changeset =
         Characteristics.create_changeset(%{
           name: name,
-          character_id: character_id,
           category_id: category_id
         })
 
-      case Repo.insert(characteristic_changeset) do
-        {:ok, characteristic} ->
+      acc_multi
+      |> Ecto.Multi.insert(
+        {:characteristic, name},
+        characteristic_changeset,
+        fn %{character: character} -> %{character_id: character.id} end
+      )
+      |> Ecto.Multi.run(
+        {:characteristic_level, name},
+        fn %{character: character, characteristic: characteristic} ->
           characteristics_level_changeset =
             CharacteristicsLevel.changeset(%{
               characteristic_id: characteristic.id,
               level: level,
-              character_id: character_id
+              character_id: character.id
             })
 
-          Repo.insert(characteristics_level_changeset)
-
-        {:error, changeset} ->
-          {:error, changeset}
-      end
+          case Repo.insert(characteristics_level_changeset) do
+            {:ok, characteristic_level} -> {:ok, characteristic_level}
+            {:error, changeset} -> {:error, changeset}
+          end
+        end
+      )
     end)
+  end
+
+  defp handle_character_transaction_result({:ok, %{character: character}}) do
+    {:ok, character}
+  end
+
+  defp handle_character_transaction_result({:error, _operation, error_value, _changes_so_far}) do
+    {:error, error_value}
   end
 
   @type characteristic :: %{

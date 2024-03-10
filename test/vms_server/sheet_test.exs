@@ -48,6 +48,7 @@ defmodule VmsServer.SheetTest do
       characteristic = insert(:characteristics)
       dynamic_characteristic = insert(:dynamic_characteristics)
       race_characteristic_attrs = %{key: "Agility", value: "High"}
+      category = insert(:category)
 
       attrs = %{
         name: "Legolas",
@@ -70,7 +71,18 @@ defmodule VmsServer.SheetTest do
             used: 2
           }
         ],
-        race_characteristics: [race_characteristic_attrs]
+        race_characteristics: [race_characteristic_attrs],
+        character_specific_characteristics: [
+          %{
+            "category_id" => category.id,
+            "static_characteristics" => [
+              %{
+                "name" => "Fortitude",
+                "level" => 1
+              }
+            ]
+          }
+        ]
       }
 
       {:ok, character} = Sheet.create_character(attrs)
