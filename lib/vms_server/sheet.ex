@@ -30,15 +30,22 @@ defmodule VmsServer.Sheet do
       |> Repo.insert()
 
   @spec create_character(%{
-          :characteristics_levels => [%{characteristic_id: binary(), level: integer()}],
-          :chronicle_id => binary(),
+          :characteristics_levels => [%{characteristic_id: <<_::288>>, level: integer()}],
+          :chronicle_id => <<_::288>>,
           :dynamic_characteristics_level => [
-            %{characteristic_id: binary(), level: integer(), used: integer()}
+            %{characteristic_id: <<_::288>>, level: integer(), used: integer()}
           ],
-          :character_specific_characteristics => [
+          :name => binary(),
+          :player_id => <<_::288>>,
+          :race_characteristics => [%{key: binary(), value: binary()}],
+          :race_id => <<_::288>>,
+          :characteristics => [
             %{
-              category_id: binary(),
-              static_characteristics: [%{level: integer(), name: binary()}]
+              category_id: <<_::288>>,
+              name: binary(),
+              characteristics_levels: %{
+                level: binary()
+              }
             }
           ],
           :name => binary(),
@@ -50,64 +57,57 @@ defmodule VmsServer.Sheet do
           optional(:lethal) => integer()
         }) :: {:ok, Character.t()} | {:error, Ecto.Changeset.t()}
   def create_character(attrs) do
-    character_specific_characteristics = Map.get(attrs, :character_specific_characteristics, [])
-    character_changeset = Character.create_changeset(%Character{}, attrs)
-
-    multi =
-      Ecto.Multi.new()
-      |> Ecto.Multi.insert(:character, character_changeset)
-
-    multi =
-      Enum.reduce(character_specific_characteristics, multi, fn specific_char, acc_multi ->
-        create_specific_characteristic_multi(acc_multi, specific_char)
-      end)
-
-    Repo.transaction(multi)
-    |> handle_character_transaction_result()
+    with {:ok, character} <-
+           attrs |> Character.create_changeset() |> Repo.insert() do
+      insert_characteristics_levels(character, attrs)
+      {:ok, character}
+    end
   end
 
-  defp create_specific_characteristic_multi(multi, %{
-         "category_id" => category_id,
-         "static_characteristics" => characteristics
+  defp insert_characteristics_levels(%{characteristics: characteristics}, %{
+         characteristics: characteristics_attr
        }) do
-    Enum.reduce(characteristics, multi, fn %{"name" => name, "level" => level}, acc_multi ->
-      characteristic_changeset =
-        Characteristics.create_changeset(%{
-          name: name,
-          category_id: category_id
-        })
+    result =
+      update_characteristics_level_array(characteristics_attr, characteristics)
+      |> Enum.map(fn %{"characteristics_levels" => characteristic_level} ->
+        characteristic_level |> CharacteristicsLevel.changeset() |> Repo.insert()
+      end)
 
-      acc_multi
-      |> Ecto.Multi.insert(
-        {:characteristic, name},
-        characteristic_changeset,
-        fn %{character: character} -> %{character_id: character.id} end
-      )
-      |> Ecto.Multi.run(
-        {:characteristic_level, name},
-        fn %{character: character, characteristic: characteristic} ->
-          characteristics_level_changeset =
-            CharacteristicsLevel.changeset(%{
-              characteristic_id: characteristic.id,
-              level: level,
-              character_id: character.id
-            })
+    {:ok, result}
+  end
 
-          case Repo.insert(characteristics_level_changeset) do
-            {:ok, characteristic_level} -> {:ok, characteristic_level}
-            {:error, changeset} -> {:error, changeset}
-          end
-        end
-      )
+  def update_characteristics_level_array(characteristics_with_level, characteristics_saved) do
+    characteristics_map = build_characteristics_map(characteristics_saved)
+    update_characteristics_with_map(characteristics_with_level, characteristics_map)
+  end
+
+  defp build_characteristics_map(characteristics_saved) do
+    Enum.reduce(characteristics_saved, %{}, fn %VmsServer.Sheet.Characteristics{
+                                                 name: name,
+                                                 id: id,
+                                                 character_id: character_id
+                                               },
+                                               acc ->
+      Map.put(acc, name, %{id: id, character_id: character_id})
     end)
   end
 
-  defp handle_character_transaction_result({:ok, %{character: character}}) do
-    {:ok, character}
+  defp update_characteristics_with_map(characteristics_with_level, characteristics_map) do
+    Enum.map(characteristics_with_level, fn characteristics ->
+      characteristics_name = characteristics["name"]
+      matching_data = Map.get(characteristics_map, characteristics_name, %{})
+
+      update_characteristics_levels(characteristics, matching_data)
+    end)
   end
 
-  defp handle_character_transaction_result({:error, _operation, error_value, _changes_so_far}) do
-    {:error, error_value}
+  defp update_characteristics_levels(characteristics, matching_data) do
+    characteristics_levels =
+      characteristics["characteristics_levels"]
+      |> Map.put("characteristic_id", matching_data[:id])
+      |> Map.put("character_id", matching_data[:character_id])
+
+    Map.put(characteristics, "characteristics_levels", characteristics_levels)
   end
 
   @type characteristic :: %{
