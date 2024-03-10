@@ -5,6 +5,12 @@ defmodule VmsServerWeb.SheetJSON do
     end)
   end
 
+  def character_fields(%{fields: character}) do
+    %{
+      id: character.id
+    }
+  end
+
   defp render_category(category, static_characteristics, dynamic_characteristics) do
     %{
       id: category.id,
