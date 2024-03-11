@@ -6,7 +6,6 @@ defmodule VmsServer.Sheet do
     Player,
     Character,
     Chronicle,
-    Characteristics,
     CharacteristicsLevel
   }
 
@@ -59,12 +58,12 @@ defmodule VmsServer.Sheet do
   def create_character(attrs) do
     with {:ok, character} <-
            attrs |> Character.create_changeset() |> Repo.insert() do
-      insert_characteristics_levels(character, attrs)
+      insert_character_specific_characteristics_levels(character, attrs)
       {:ok, character}
     end
   end
 
-  defp insert_characteristics_levels(%{characteristics: characteristics}, %{
+  defp insert_character_specific_characteristics_levels(%{characteristics: characteristics}, %{
          characteristics: characteristics_attr
        }) do
     result =
@@ -75,6 +74,8 @@ defmodule VmsServer.Sheet do
 
     {:ok, result}
   end
+
+  defp insert_character_specific_characteristics_levels(_, _), do: :ok
 
   def update_characteristics_level_array(characteristics_with_level, characteristics_saved) do
     characteristics_map = build_characteristics_map(characteristics_saved)
