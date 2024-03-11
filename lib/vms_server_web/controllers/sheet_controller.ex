@@ -1,6 +1,7 @@
 defmodule VmsServerWeb.SheetController do
   use VmsServerWeb, :controller
 
+  action_fallback VmsServerWeb.FallbackController
   plug VmsServer.Plugs.AtomizeParams when action in [:create]
 
   def get_characteristics_fields(conn, %{"race_id" => race_id}) do
