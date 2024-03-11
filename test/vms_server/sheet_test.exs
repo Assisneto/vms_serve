@@ -41,13 +41,14 @@ defmodule VmsServer.SheetTest do
       assert character.aggravated == attrs[:aggravated]
     end
 
-    test "creates a character with characteristics levels, dynamic characteristics levels, and race characteristics" do
+    test "creates a character with characteristics levels, dynamic characteristics levels, race characteristics and character-specific characteristics" do
       race = insert(:race)
       player = insert(:player)
       chronicle = insert(:chronicle)
       characteristic = insert(:characteristics)
       dynamic_characteristic = insert(:dynamic_characteristics)
       race_characteristic_attrs = %{key: "Agility", value: "High"}
+      category = insert(:category)
 
       attrs = %{
         name: "Legolas",
@@ -70,7 +71,16 @@ defmodule VmsServer.SheetTest do
             used: 2
           }
         ],
-        race_characteristics: [race_characteristic_attrs]
+        race_characteristics: [race_characteristic_attrs],
+        characteristics: [
+          %{
+            "category_id" => category.id,
+            "name" => "Fortitude",
+            "characteristics_levels" => %{
+              "level" => 1
+            }
+          }
+        ]
       }
 
       {:ok, character} = Sheet.create_character(attrs)

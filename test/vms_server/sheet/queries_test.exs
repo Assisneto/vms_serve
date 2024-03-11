@@ -9,8 +9,9 @@ defmodule VmsServer.Sheet.QueriesTest do
     setup do
       race = insert(:race, name: "vampire")
       category = insert(:category_with_race, %{race_id: race.id})
-      _characteristic = insert(:characteristics, %{category_id: category.id})
-      _dynamic_characteristic = insert(:dynamic_characteristics, %{category_id: category.id})
+
+      insert(:characteristics, category_id: category.id, character_id: nil)
+      insert(:dynamic_characteristics, category_id: category.id, character_id: nil)
 
       {:ok, race: race}
     end
@@ -37,9 +38,14 @@ defmodule VmsServer.Sheet.QueriesTest do
   describe "get_category_by_race_id/1" do
     setup do
       race = insert(:race, name: "vampire")
+      character = insert(:character, race_id: race.id)
       category = insert(:category_with_race, %{race_id: race.id})
-      _characteristic = insert(:characteristics, %{category_id: category.id})
-      _dynamic_characteristic = insert(:dynamic_characteristics, %{category_id: category.id})
+
+      insert(:characteristics, category_id: category.id, character_id: nil)
+      insert(:dynamic_characteristics, category_id: category.id, character_id: nil)
+
+      insert(:characteristics, category_id: category.id, character_id: character.id)
+      insert(:dynamic_characteristics, category_id: category.id, character_id: character.id)
 
       {:ok, race: race}
     end
@@ -60,6 +66,16 @@ defmodule VmsServer.Sheet.QueriesTest do
       categories = Queries.get_category_by_race_id(race_id)
 
       assert Enum.empty?(categories)
+    end
+
+    test "excludes character-specific characteristics from the results", %{race: race} do
+      results = Queries.get_all_characteristics_by_race_id(race.id)
+
+      Enum.each(results, fn {_category, static_characteristics, dynamic_characteristics} ->
+        Enum.each(static_characteristics ++ dynamic_characteristics, fn characteristic ->
+          assert is_nil(characteristic.character_id)
+        end)
+      end)
     end
   end
 end

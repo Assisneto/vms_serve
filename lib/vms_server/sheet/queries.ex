@@ -10,14 +10,13 @@ defmodule VmsServer.Sheet.Queries do
       static_characteristics =
         Repo.all(
           from c in Characteristics,
-            where: c.category_id == ^category.id,
-            preload: [:category]
+            where: c.category_id == ^category.id and is_nil(c.character_id)
         )
 
       dynamic_characteristics =
         Repo.all(
           from d in DynamicCharacteristics,
-            where: d.category_id == ^category.id
+            where: d.category_id == ^category.id and is_nil(d.character_id)
         )
 
       {category, static_characteristics, dynamic_characteristics}

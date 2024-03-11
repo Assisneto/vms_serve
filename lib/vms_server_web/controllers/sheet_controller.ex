@@ -11,10 +11,9 @@ defmodule VmsServerWeb.SheetController do
   end
 
   def create(%{assigns: %{atomized_params: params}} = conn, _params) do
-    with {:ok, _} <- VmsServer.Sheet.create_character(params) do
-      conn
-      |> put_status(:created)
-      |> text("ok")
+    with {:ok, character} <- VmsServer.Sheet.create_character(params) do
+      character
+      |> handle_response(conn, :character_fields, :created)
     end
   end
 
