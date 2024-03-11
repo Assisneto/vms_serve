@@ -32,7 +32,7 @@ defmodule VmsServerWeb.SheetControllerTest do
   describe "create/2" do
     setup %{conn: conn} do
       race = insert(:race, name: "vampire")
-      player = insert(:player) |> IO.inspect(label: "Asdasd")
+      player = insert(:player)
       chronicle = insert(:chronicle)
       category = insert(:category_with_race, %{race_id: race.id})
 

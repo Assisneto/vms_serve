@@ -44,7 +44,7 @@ defmodule VmsServer.MixProject do
       {:telemetry_poller, "~> 1.0"},
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
-      {:bandit, "~> 1.2.3"},
+      {:bandit, "~> 1.3.0"},
       {:credo, "~> 1.7.5", only: [:dev, :test], runtime: false},
       {:ex_machina, "~> 2.7.0", only: :test},
       {:excoveralls, "~> 0.18", only: :test}
