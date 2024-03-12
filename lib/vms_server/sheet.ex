@@ -63,6 +63,32 @@ defmodule VmsServer.Sheet do
     end
   end
 
+  def update_character(character, attrs) do
+    with {:ok, character_updated} <-
+           character |> Character.update_changeset(attrs) |> Repo.update() do
+      insert_character_specific_characteristics_levels(character, attrs)
+      {:ok, character_updated}
+    end
+  end
+
+  def get_character_by_id(id) do
+    case Repo.get(Character, id) do
+      nil ->
+        {:error, :not_found}
+
+      character ->
+        sheet =
+          character
+          |> Repo.preload([
+            :characteristics_levels,
+            :dynamic_characteristics_levels,
+            :race_characteristics
+          ])
+
+        {:ok, sheet}
+    end
+  end
+
   defp insert_character_specific_characteristics_levels(%{characteristics: characteristics}, %{
          characteristics: characteristics_attr
        }) do
