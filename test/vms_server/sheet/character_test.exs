@@ -5,7 +5,7 @@ defmodule VmsServer.Sheet.CharacterTest do
   alias VmsServer.Sheet.Character
   import VmsServer.Factory
 
-  describe "Character changesets" do
+  describe "create_changeset/2" do
     test "validates presence of required fields" do
       attrs = %{}
       changeset = Character.create_changeset(%Character{}, attrs)
@@ -177,6 +177,121 @@ defmodule VmsServer.Sheet.CharacterTest do
       assert List.first(updated_character.race_characteristics).value == "5" and
                List.first(updated_character.race_characteristics).key ==
                  race_characteristic_attrs.key
+    end
+  end
+
+  describe "update_changeset/2" do
+    test "updates a character with new lethal damage value" do
+      character = insert(:character, name: "Gimli", lethal: 2)
+
+      updated_attrs = %{lethal: 5}
+      changeset = Character.update_changeset(character, updated_attrs)
+      {:ok, updated_character} = Repo.update(changeset)
+
+      assert updated_character.lethal == updated_attrs.lethal
+    end
+
+    test "update a character's characteristics levels" do
+      character = insert(:character)
+      characteristic_type = insert(:characteristics)
+
+      existing_level =
+        insert(:characteristics_level,
+          character_id: character.id,
+          characteristic_id: characteristic_type.id,
+          level: 2
+        )
+
+      updated_level_attrs = %{
+        id: existing_level.id,
+        level: 5
+      }
+
+      update_attrs = %{characteristics_levels: [updated_level_attrs]}
+
+      {:ok, updated_character} =
+        character
+        |> Repo.preload([
+          :characteristics_levels
+        ])
+        |> Character.update_changeset(update_attrs)
+        |> Repo.update()
+
+      assert Repo.preload(updated_character, :characteristics_levels).characteristics_levels
+             |> Enum.any?(fn characteristics_level -> characteristics_level.level == 5 end)
+    end
+
+    test "updates a character's dynamic characteristics levels" do
+      character = insert(:character)
+      dynamic_characteristic_type = insert(:dynamic_characteristics)
+
+      existing_dynamic_level =
+        insert(:dynamic_characteristics_level,
+          character_id: character.id,
+          characteristic_id: dynamic_characteristic_type.id,
+          level: 2,
+          used: 1
+        )
+
+      updated_dynamic_level_attrs = %{
+        id: existing_dynamic_level.id,
+        level: 4,
+        used: 2
+      }
+
+      update_attrs = %{dynamic_characteristics_levels: [updated_dynamic_level_attrs]}
+
+      {:ok, updated_character} =
+        character
+        |> Repo.preload([:dynamic_characteristics_levels])
+        |> Character.update_changeset(update_attrs)
+        |> Repo.update()
+
+      assert Repo.preload(updated_character, :dynamic_characteristics_levels).dynamic_characteristics_levels
+             |> Enum.any?(fn dynamic_level ->
+               dynamic_level.level == 4 and dynamic_level.used == 2
+             end)
+    end
+
+    test "updates a character's race characteristics" do
+      character = insert(:character)
+
+      race_characteristic =
+        insert(:race_characteristics,
+          character_id: character.id,
+          key: "strength",
+          value: "medium"
+        )
+
+      race_characteristics_attrs_update = [
+        %{
+          id: race_characteristic.id,
+          key: "strength",
+          value: "high"
+        },
+        %{
+          key: "agility",
+          value: "low"
+        }
+      ]
+
+      update_attrs = %{race_characteristics: race_characteristics_attrs_update}
+
+      {:ok, updated_character} =
+        character
+        |> Repo.preload([:race_characteristics])
+        |> Character.update_changeset(update_attrs)
+        |> Repo.update()
+
+      updated_character = Repo.preload(updated_character, [:race_characteristics])
+
+      assert Enum.any?(updated_character.race_characteristics, fn rc ->
+               rc.key == "strength" and rc.value == "high" and rc.id == race_characteristic.id
+             end)
+
+      assert Enum.any?(updated_character.race_characteristics, fn rc ->
+               rc.key == "agility" and rc.value == "low"
+             end)
     end
   end
 end
