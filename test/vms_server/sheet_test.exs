@@ -1,5 +1,7 @@
 defmodule VmsServer.SheetTest do
   use ExUnit.Case, async: true
+  alias VmsServer.Sheet.{RaceCharacteristics, CharacteristicsLevel, DynamicCharacteristicsLevel}
+
   use VmsServer.DataCase
 
   alias VmsServer.Sheet
@@ -273,6 +275,86 @@ defmodule VmsServer.SheetTest do
       results = Sheet.get_characteristics_fields(unknown_race_id)
 
       assert Enum.empty?(results)
+    end
+  end
+
+  describe "update_character/2" do
+    setup do
+      race = insert(:race)
+      player = insert(:player)
+      chronicle = insert(:chronicle)
+
+      character =
+        insert(:character, race_id: race.id, player_id: player.id, chronicle_id: chronicle.id)
+
+      {:ok, character: character}
+    end
+
+    test "updates a character with valid data", %{character: character} do
+      updated_name = "Updated Name"
+      attrs = %{name: updated_name}
+
+      {:ok, updated_character} = Sheet.update_character(character, attrs)
+
+      assert updated_character.name == updated_name
+    end
+
+    test "updates a character with dynamic characteristics levels", %{character: character} do
+      dynamic_characteristic_level =
+        insert(:dynamic_characteristics_level, character_id: character.id)
+
+      updated_level = dynamic_characteristic_level.level + 1
+
+      attrs = %{
+        dynamic_characteristics_levels: [
+          %{"id" => dynamic_characteristic_level.id, "level" => updated_level, "used" => 0}
+        ]
+      }
+
+      {:ok, _updated_character} = Sheet.update_character(character, attrs)
+
+      updated_dynamic_characteristic_level =
+        Repo.get!(DynamicCharacteristicsLevel, dynamic_characteristic_level.id)
+
+      assert updated_dynamic_characteristic_level.level == updated_level
+    end
+
+    test "updates a character with characteristics levels", %{character: character} do
+      characteristic_level =
+        insert(:characteristics_level, character_id: character.id)
+
+      updated_level = characteristic_level.level + 1
+
+      attrs = %{
+        characteristics_levels: [
+          %{"id" => characteristic_level.id, "level" => updated_level}
+        ]
+      }
+
+      {:ok, _updated_character} = Sheet.update_character(character, attrs)
+
+      updated_characteristics_level = Repo.get!(CharacteristicsLevel, characteristic_level.id)
+
+      assert updated_characteristics_level.level == updated_level
+    end
+
+    test "updates a character with race characteristics", %{character: character} do
+      race_characteristics =
+        insert(:race_characteristics, character_id: character.id)
+
+      updated_value = "Very Fast"
+
+      attrs = %{
+        race_characteristics: [
+          %{"id" => race_characteristics.id, "key" => "Speed", "value" => updated_value}
+        ]
+      }
+
+      {:ok, _updated_character} = Sheet.update_character(character, attrs)
+
+      updated_race_characteristic = Repo.get!(RaceCharacteristics, race_characteristics.id)
+
+      assert updated_race_characteristic.value == updated_value
     end
   end
 end

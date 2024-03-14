@@ -5,7 +5,7 @@ defmodule VmsServer.Sheet.CharacterTest do
   alias VmsServer.Sheet.Character
   import VmsServer.Factory
 
-  describe "Character changesets" do
+  describe "create_changeset/2" do
     test "validates presence of required fields" do
       attrs = %{}
       changeset = Character.create_changeset(%Character{}, attrs)
@@ -102,81 +102,17 @@ defmodule VmsServer.Sheet.CharacterTest do
       assert updated_character.name == updated_attrs.name
       assert updated_character.bashing == updated_attrs.bashing
     end
+  end
 
-    test "updates a character with characteristics levels and dynamic characteristics levels and race characteristics" do
-      race = insert(:race)
-      player = insert(:player)
-      chronicle = insert(:chronicle)
-      characteristic = insert(:characteristics)
-      dynamic_characteristic = insert(:dynamic_characteristics)
-      race_characteristic_attrs = %{key: "generation", value: ""}
+  describe "update_changeset/2" do
+    test "updates a character with new lethal damage value" do
+      character = insert(:character, name: "Gimli", lethal: 2)
 
-      initial_attrs = %{
-        name: "Aragorn",
-        race_id: race.id,
-        player_id: player.id,
-        chronicle_id: chronicle.id,
-        bashing: 5,
-        lethal: 3,
-        aggravated: 1,
-        characteristics_levels: [
-          %{
-            characteristic_id: characteristic.id,
-            level: 1
-          }
-        ],
-        dynamic_characteristics_levels: [
-          %{
-            characteristic_id: dynamic_characteristic.id,
-            level: 1,
-            used: 1
-          }
-        ],
-        race_characteristics: [race_characteristic_attrs]
-      }
+      updated_attrs = %{lethal: 5}
+      changeset = Character.update_changeset(character, updated_attrs)
+      {:ok, updated_character} = Repo.update(changeset)
 
-      {:ok, character} = Character.create_changeset(%Character{}, initial_attrs) |> Repo.insert()
-
-      character =
-        Repo.preload(character, [
-          :characteristics_levels,
-          :dynamic_characteristics_levels,
-          :race_characteristics
-        ])
-
-      updated_attrs = %{
-        characteristics_levels: [
-          %{
-            id: List.first(character.characteristics_levels).id,
-            level: 6
-          }
-        ],
-        dynamic_characteristics_levels: [
-          %{
-            id: List.first(character.dynamic_characteristics_levels).id,
-            level: 5,
-            used: 3
-          }
-        ],
-        race_characteristics: [
-          %{
-            id: List.first(character.race_characteristics).id,
-            value: "5"
-          }
-        ]
-      }
-
-      {:ok, updated_character} =
-        character |> Character.update_changeset(updated_attrs) |> Repo.update()
-
-      assert List.first(updated_character.characteristics_levels).level == 6
-
-      assert List.first(updated_character.dynamic_characteristics_levels).level == 5 and
-               List.first(updated_character.dynamic_characteristics_levels).used == 3
-
-      assert List.first(updated_character.race_characteristics).value == "5" and
-               List.first(updated_character.race_characteristics).key ==
-                 race_characteristic_attrs.key
+      assert updated_character.lethal == updated_attrs.lethal
     end
   end
 end

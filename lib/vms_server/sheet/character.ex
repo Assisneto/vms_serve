@@ -58,6 +58,15 @@ defmodule VmsServer.Sheet.Character do
               :key => String.t()
             }
           ],
+          optional(:characteristics) => [
+            %{
+              category_id: <<_::288>>,
+              name: binary(),
+              characteristics_levels: %{
+                level: binary()
+              }
+            }
+          ],
           optional(:bashing) => integer(),
           optional(:lethal) => integer(),
           optional(:aggravated) => integer()
@@ -92,13 +101,19 @@ defmodule VmsServer.Sheet.Character do
               :level => integer(),
               :used => integer()
             }
+          ],
+          optional(:characteristics) => [
+            %{
+              category_id: <<_::288>>,
+              name: binary(),
+              characteristics_levels: %{
+                level: binary()
+              }
+            }
           ]
         }) :: Ecto.Changeset.t()
   def update_changeset(character, attrs) do
     character
     |> cast(attrs, @optional_fields_update)
-    |> cast_assoc(:characteristics_levels, with: &CharacteristicsLevel.changeset/2)
-    |> cast_assoc(:dynamic_characteristics_levels, with: &DynamicCharacteristicsLevel.changeset/2)
-    |> cast_assoc(:race_characteristics, with: &RaceCharacteristics.changeset/2)
   end
 end

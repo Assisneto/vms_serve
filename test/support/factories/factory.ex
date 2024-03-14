@@ -94,7 +94,7 @@ defmodule VmsServer.Factory do
 
   def characteristics_level_factory do
     %Character{id: character_id} = insert(:character)
-    %Characteristics{id: characteristic_id} = insert(:Characteristics)
+    %Characteristics{id: characteristic_id} = insert(:characteristics)
 
     %CharacteristicsLevel{
       character_id: character_id,

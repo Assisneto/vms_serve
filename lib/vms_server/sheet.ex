@@ -1,4 +1,6 @@
 defmodule VmsServer.Sheet do
+  alias VmsServer.Sheet.RaceCharacteristics
+  alias VmsServer.Sheet.DynamicCharacteristicsLevel
   alias VmsServer.Sheet.Queries
   alias VmsServer.Repo
 
@@ -63,6 +65,102 @@ defmodule VmsServer.Sheet do
     end
   end
 
+  @spec update_character(
+          Character.t(),
+          %{
+            optional(:aggravated) => integer(),
+            optional(:bashing) => integer(),
+            optional(:characteristics) => [
+              %{category_id: <<_::288>>, characteristics_levels: map(), name: binary()}
+            ],
+            optional(:characteristics_levels) => [
+              %{characteristic_id: <<_::288>>, level: integer()}
+            ],
+            optional(:dynamic_characteristics_level) => [
+              %{characteristic_id: <<_::288>>, level: integer(), used: integer()}
+            ],
+            optional(:race_characteristics) => [
+              %{id: <<_::288>>, key: binary(), value: binary()}
+            ],
+            optional(:lethal) => integer(),
+            optional(:name) => binary()
+          }
+        ) :: any()
+  def update_character(character, attrs) do
+    with {:ok, character_updated} <-
+           character
+           |> Character.update_changeset(attrs)
+           |> Repo.update(),
+         {:ok, _} <- update_characteristics_levels(attrs),
+         {:ok, _} <- update_dynamic_characteristics_levels(attrs),
+         {:ok, _} <- update_race_characteristics(attrs),
+         {:ok, _} <- insert_character_specific_characteristics_levels(character, attrs) do
+      {:ok, character_updated}
+    end
+  end
+
+  defp update_characteristics_levels(%{characteristics_levels: characteristics_levels}) do
+    result =
+      Enum.map(characteristics_levels, fn %{"id" => id, "level" => level} ->
+        Repo.get!(CharacteristicsLevel, id)
+        |> CharacteristicsLevel.update_changeset(%{level: level})
+        |> Repo.update()
+      end)
+
+    {:ok, result}
+  end
+
+  defp update_characteristics_levels(_), do: {:ok, ""}
+
+  defp update_race_characteristics(%{race_characteristics: race_characteristics}) do
+    result =
+      Enum.map(race_characteristics, fn %{"id" => id, "key" => key, "value" => value} ->
+        Repo.get!(RaceCharacteristics, id)
+        |> RaceCharacteristics.update_changeset(%{key: key, value: value})
+        |> Repo.update()
+      end)
+
+    {:ok, result}
+  end
+
+  defp update_race_characteristics(_), do: {:ok, ""}
+
+  defp update_dynamic_characteristics_levels(%{
+         dynamic_characteristics_levels: dynamic_characteristics_levels
+       }) do
+    result =
+      Enum.map(dynamic_characteristics_levels, fn %{"id" => id, "level" => level, "used" => used} ->
+        Repo.get!(DynamicCharacteristicsLevel, id)
+        |> DynamicCharacteristicsLevel.update_changeset(%{level: level, used: used})
+        |> Repo.update()
+      end)
+
+    {:ok, result}
+  end
+
+  defp update_dynamic_characteristics_levels(_), do: {:ok, ""}
+
+  @spec get_character_by_id(id :: <<_::288>>) ::
+          {:ok, Character.t()}
+          | {:error, {:not_found, String.t()}}
+  def get_character_by_id(id) do
+    case Repo.get(Character, id) do
+      nil ->
+        {:error, {:not_found, "Character not found"}}
+
+      character ->
+        sheet =
+          character
+          |> Repo.preload([
+            :characteristics_levels,
+            :dynamic_characteristics_levels,
+            :race_characteristics
+          ])
+
+        {:ok, sheet}
+    end
+  end
+
   defp insert_character_specific_characteristics_levels(%{characteristics: characteristics}, %{
          characteristics: characteristics_attr
        }) do
@@ -75,7 +173,7 @@ defmodule VmsServer.Sheet do
     {:ok, result}
   end
 
-  defp insert_character_specific_characteristics_levels(_, _), do: :ok
+  defp insert_character_specific_characteristics_levels(_, _), do: {:ok, ""}
 
   def update_characteristics_level_array(characteristics_with_level, characteristics_saved) do
     characteristics_map = build_characteristics_map(characteristics_saved)
@@ -98,11 +196,11 @@ defmodule VmsServer.Sheet do
       characteristics_name = characteristics["name"]
       matching_data = Map.get(characteristics_map, characteristics_name, %{})
 
-      update_characteristics_levels(characteristics, matching_data)
+      update_characteristics_levels_map(characteristics, matching_data)
     end)
   end
 
-  defp update_characteristics_levels(characteristics, matching_data) do
+  defp update_characteristics_levels_map(characteristics, matching_data) do
     characteristics_levels =
       characteristics["characteristics_levels"]
       |> Map.put("characteristic_id", matching_data[:id])

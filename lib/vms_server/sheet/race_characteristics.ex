@@ -26,4 +26,10 @@ defmodule VmsServer.Sheet.RaceCharacteristics do
     |> validate_required(@required_fields)
     |> foreign_key_constraint(:character_id)
   end
+
+  def update_changeset(race_characteristic, attrs) do
+    race_characteristic
+    |> cast(attrs, [:value, :key])
+    |> validate_required([:value, :key])
+  end
 end
