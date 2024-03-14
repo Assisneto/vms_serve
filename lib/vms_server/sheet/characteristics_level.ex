@@ -27,4 +27,11 @@ defmodule VmsServer.Sheet.CharacteristicsLevel do
     |> foreign_key_constraint(:characteristic_id)
     |> validate_number(:level, greater_than_or_equal_to: 0)
   end
+
+  def update_changeset(characteristics_level, attrs) do
+    characteristics_level
+    |> cast(attrs, [:level])
+    |> validate_required([:level])
+    |> validate_number(:level, greater_than_or_equal_to: 0)
+  end
 end

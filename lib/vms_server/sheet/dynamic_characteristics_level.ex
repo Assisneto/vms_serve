@@ -31,4 +31,12 @@ defmodule VmsServer.Sheet.DynamicCharacteristicsLevel do
     |> validate_number(:level, greater_than_or_equal_to: 0)
     |> validate_number(:used, greater_than_or_equal_to: 0)
   end
+
+  def update_changeset(dynamic_characteristic_level, attrs) do
+    dynamic_characteristic_level
+    |> cast(attrs, [:level, :used])
+    |> validate_required([:level, :used])
+    |> validate_number(:level, greater_than_or_equal_to: 0)
+    |> validate_number(:used, greater_than_or_equal_to: 0)
+  end
 end

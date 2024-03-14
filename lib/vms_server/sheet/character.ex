@@ -115,9 +115,5 @@ defmodule VmsServer.Sheet.Character do
   def update_changeset(character, attrs) do
     character
     |> cast(attrs, @optional_fields_update)
-    |> cast_assoc(:characteristics_levels, with: &CharacteristicsLevel.changeset/2)
-    |> cast_assoc(:dynamic_characteristics_levels, with: &DynamicCharacteristicsLevel.changeset/2)
-    |> cast_assoc(:race_characteristics, with: &RaceCharacteristics.changeset/2)
-    |> cast_assoc(:characteristics, with: &Characteristics.create_changeset/2)
   end
 end
