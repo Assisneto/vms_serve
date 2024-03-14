@@ -261,4 +261,60 @@ defmodule VmsServerWeb.SheetControllerTest do
              end)
     end
   end
+
+  describe "update/2" do
+    setup %{conn: conn} do
+      race = insert(:race, name: "Elf")
+      player = insert(:player, name: "John Doe")
+      chronicle = insert(:chronicle, title: "The Great Adventure")
+
+      character =
+        insert(:character,
+          name: "Legolas",
+          race_id: race.id,
+          player_id: player.id,
+          chronicle_id: chronicle.id
+        )
+
+      {:ok,
+       %{
+         conn: conn,
+         character: character,
+         race_id: race.id,
+         player_id: player.id,
+         chronicle_id: chronicle.id
+       }}
+    end
+
+    test "updates a character and returns 204 No Content", %{conn: conn, character: character} do
+      updated_attrs = %{
+        id: character.id,
+        name: "Legolas Greenleaf",
+        bashing: 2
+      }
+
+      conn = put(conn, "/api/sheet/#{character.id}", updated_attrs)
+      assert response(conn, 204)
+
+      updated_character = Repo.get(VmsServer.Sheet.Character, character.id)
+      assert updated_character.name == "Legolas Greenleaf"
+      assert updated_character.bashing == 2
+    end
+
+    test "returns 404 Not Found for an unknown character id", %{conn: conn} do
+      unknown_character_id = "00000000-0000-0000-0000-000000000000"
+
+      updated_attrs = %{
+        name: "Unknown Character",
+        bashing: 1
+      }
+
+      conn = put(conn, "/api/sheet/#{unknown_character_id}", updated_attrs)
+      assert errors = json_response(conn, 404)
+
+      assert errors == %{
+               "errors" => "Character not found"
+             }
+    end
+  end
 end
