@@ -2,7 +2,7 @@ defmodule VmsServerWeb.SheetController do
   use VmsServerWeb, :controller
 
   action_fallback VmsServerWeb.FallbackController
-  plug VmsServer.Plugs.AtomizeParams when action in [:create, :update]
+  plug VmsServer.Plugs.AtomizeParams when action in [:create, :update, :show]
 
   def get_characteristics_fields(conn, %{"race_id" => race_id}) do
     case VmsServer.Sheet.get_characteristics_fields(race_id) do
@@ -11,10 +11,17 @@ defmodule VmsServerWeb.SheetController do
     end
   end
 
+  def show(%{assigns: %{atomized_params: %{id: character_id}}} = conn, _params) do
+    with {:ok, character} <-
+           VmsServer.Sheet.get_character_by_id(character_id, {:group_by, :category}) do
+      character |> handle_response(conn, :character_fields_group_by_category, :ok)
+    end
+  end
+
   def create(%{assigns: %{atomized_params: params}} = conn, _params) do
     with {:ok, character} <- VmsServer.Sheet.create_character(params) do
       character
-      |> handle_response(conn, :character_fields, :created)
+      |> handle_response(conn, :character_id, :created)
     end
   end
 
