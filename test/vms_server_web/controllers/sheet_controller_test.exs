@@ -317,4 +317,94 @@ defmodule VmsServerWeb.SheetControllerTest do
              }
     end
   end
+
+  describe "show/2" do
+    setup %{conn: conn} do
+      race = insert(:race)
+      category = insert(:category, type: :physical)
+      character = insert(:character, race_id: race.id)
+
+      characteristic = insert(:characteristics, category_id: category.id)
+      dynamic_characteristic = insert(:dynamic_characteristics, category_id: category.id)
+
+      characteristics_level =
+        insert(:characteristics_level,
+          character_id: character.id,
+          characteristic_id: characteristic.id,
+          level: 3
+        )
+
+      dynamic_characteristics_level =
+        insert(:dynamic_characteristics_level,
+          character_id: character.id,
+          characteristic_id: dynamic_characteristic.id,
+          level: 4,
+          used: 1
+        )
+
+      race_characteristics =
+        insert(:race_characteristics, %{character_id: character.id})
+
+      {:ok,
+       %{
+         conn: conn,
+         character_id: character.id,
+         characteristics_level: characteristics_level,
+         dynamic_characteristics_level: dynamic_characteristics_level,
+         category: category,
+         race_characteristics: race_characteristics
+       }}
+    end
+
+    test "returns 200 OK with the character and its characteristics data for a valid id", %{
+      conn: conn,
+      character_id: character_id,
+      characteristics_level: characteristics_level,
+      dynamic_characteristics_level: dynamic_characteristics_level,
+      category: %{type: type},
+      race_characteristics: race_characteristics
+    } do
+      conn = get(conn, "/api/sheet/#{character_id}")
+      response = json_response(conn, 200)
+
+      assert response["id"] == character_id
+
+      assert map_size(response["characteristics"]) > 0
+      assert map_size(response["dynamic_characteristics"]) > 0
+      assert length(response["race_characteristics"]) > 0
+
+      Enum.each(response["characteristics"], fn {category, characteristics} ->
+        assert length(characteristics) > 0
+        assert category == Atom.to_string(type)
+
+        Enum.each(characteristics, fn characteristic ->
+          assert characteristic["id"] == characteristics_level.id
+          assert characteristic["level"] == characteristics_level.level
+        end)
+      end)
+
+      Enum.each(response["dynamic_characteristics"], fn {category, dynamics} ->
+        assert length(dynamics) > 0
+        assert category == Atom.to_string(type)
+
+        Enum.each(dynamics, fn dynamic ->
+          assert dynamic["id"] == dynamic_characteristics_level.id
+          assert dynamic["level"] == dynamic_characteristics_level.level
+          assert dynamic["used"] == dynamic_characteristics_level.used
+        end)
+      end)
+
+      Enum.each(response["race_characteristics"], fn race_char ->
+        assert race_char["id"] == race_characteristics.id
+        assert race_char["key"] == race_characteristics.key
+        assert race_char["value"] == race_characteristics.value
+      end)
+    end
+
+    test "returns 404 Not Found for a non-existent character id", %{conn: conn} do
+      non_existent_id = "00000000-0000-0000-0000-000000000000"
+      conn = get(conn, "/api/sheet/#{non_existent_id}")
+      assert response(conn, 404)
+    end
+  end
 end

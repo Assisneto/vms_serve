@@ -27,8 +27,7 @@ defmodule VmsServerWeb.SheetController do
 
   def update(%{assigns: %{atomized_params: %{id: character_id} = params}} = conn, _params) do
     with {:ok, character} <- VmsServer.Sheet.get_character_by_id(character_id),
-         {:ok, _character_updated} <-
-           VmsServer.Sheet.update_character(character, params) do
+         {:ok, _character_updated} <- VmsServer.Sheet.update_character(character, params) do
       handle_response(conn, :no_content)
     end
   end
