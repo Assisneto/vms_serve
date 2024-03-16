@@ -78,4 +78,60 @@ defmodule VmsServer.Sheet.QueriesTest do
       end)
     end
   end
+
+  describe "get_character_by_id_group_by_category/1" do
+    setup do
+      race = insert(:race)
+      character = insert(:character, race_id: race.id)
+      category1 = insert(:category, type: :physical)
+      category2 = insert(:category, type: :social)
+      characteristic1 = insert(:characteristics, category_id: category1.id)
+      characteristic2 = insert(:characteristics, category_id: category2.id)
+      dynamic_characteristic1 = insert(:dynamic_characteristics, category_id: category1.id)
+      dynamic_characteristic2 = insert(:dynamic_characteristics, category_id: category2.id)
+
+      insert(:characteristics_level,
+        character_id: character.id,
+        characteristic_id: characteristic1.id
+      )
+
+      insert(:characteristics_level,
+        character_id: character.id,
+        characteristic_id: characteristic2.id
+      )
+
+      insert(:dynamic_characteristics_level,
+        character_id: character.id,
+        characteristic_id: dynamic_characteristic1.id
+      )
+
+      insert(:dynamic_characteristics_level,
+        character_id: character.id,
+        characteristic_id: dynamic_characteristic2.id
+      )
+
+      {:ok, character_id: character.id}
+    end
+
+    test "returns character data grouped by category", %{character_id: character_id} do
+      result = Queries.get_character_by_id_group_by_category(character_id)
+
+      assert {:ok, character} = result
+      assert is_map(character)
+      assert Map.has_key?(character, :characteristics)
+      assert Map.has_key?(character, :dynamic_characteristics)
+
+      assert character.characteristics
+             |> Map.keys()
+             |> Enum.any?(&(&1 == :physical || &1 == :social))
+    end
+
+    test "returns an error for a non-existent character", _context do
+      non_existent_id = "00000000-0000-0000-0000-000000000000"
+
+      result = Queries.get_character_by_id_group_by_category(non_existent_id)
+
+      assert {:error, {:not_found, "Character not found"}} = result
+    end
+  end
 end

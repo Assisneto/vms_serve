@@ -38,7 +38,7 @@ defmodule VmsServer.MixProject do
       {:ecto_sql, "~> 3.10"},
       {:postgrex, ">= 0.17.5"},
       {:phoenix_live_dashboard, "~> 0.8.3"},
-      {:swoosh, "~> 1.16.0"},
+      {:swoosh, "~> 1.16.1"},
       {:finch, "~> 0.18"},
       {:telemetry_metrics, "~> 0.6"},
       {:telemetry_poller, "~> 1.0"},

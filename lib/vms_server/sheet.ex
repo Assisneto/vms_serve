@@ -161,6 +161,9 @@ defmodule VmsServer.Sheet do
     end
   end
 
+  def get_character_by_id(id, {:group_by, :category}),
+    do: Queries.get_character_by_id_group_by_category(id)
+
   defp insert_character_specific_characteristics_levels(%{characteristics: characteristics}, %{
          characteristics: characteristics_attr
        }) do
