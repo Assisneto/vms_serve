@@ -3,7 +3,7 @@ defmodule VmsServer.Sheet.Character do
   import Ecto.Changeset
 
   alias VmsServer.Sheet.{
-    Player,
+    User,
     Race,
     Chronicle,
     CharacteristicsLevel,
@@ -19,7 +19,7 @@ defmodule VmsServer.Sheet.Character do
     field :lethal, :integer
     field :aggravated, :integer
     belongs_to :race, Race
-    belongs_to :player, Player
+    belongs_to :user, User
     belongs_to :chronicle, Chronicle
     has_many :characteristics_levels, CharacteristicsLevel
     has_many :race_characteristics, RaceCharacteristics
@@ -30,14 +30,14 @@ defmodule VmsServer.Sheet.Character do
     timestamps()
   end
 
-  @required_fields_create [:race_id, :name, :player_id, :chronicle_id]
+  @required_fields_create [:race_id, :name, :user_id, :chronicle_id]
   @optional_fields_create [:bashing, :lethal, :aggravated]
   @optional_fields_update [:name, :bashing, :lethal, :aggravated]
 
   @spec create_changeset(Character.t(), %{
           :race_id => Ecto.UUID.t(),
           :name => String.t(),
-          :player_id => Ecto.UUID.t(),
+          :user_id => Ecto.UUID.t(),
           :chronicle_id => Ecto.UUID.t(),
           :characteristics_levels => [
             %{
@@ -81,7 +81,7 @@ defmodule VmsServer.Sheet.Character do
     |> cast_assoc(:characteristics, with: &Characteristics.create_changeset/2)
     |> foreign_key_constraint(:chronicle_id)
     |> foreign_key_constraint(:race_id)
-    |> foreign_key_constraint(:player_id)
+    |> foreign_key_constraint(:user_id)
   end
 
   @spec update_changeset(Character.t(), %{

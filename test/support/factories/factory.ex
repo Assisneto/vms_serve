@@ -1,6 +1,6 @@
 defmodule VmsServer.Factory do
   alias VmsServer.Sheet.{
-    Player,
+    User,
     Race,
     Character,
     Chronicle,
@@ -15,9 +15,11 @@ defmodule VmsServer.Factory do
 
   use ExMachina.Ecto, repo: VmsServer.Repo
 
-  def player_factory do
-    %Player{
-      name: "Assis neto"
+  def user_factory do
+    %User{
+      name: "Assis neto",
+      email: "assisneto@email.com",
+      hashed_password: "diosjado123123123[][0-2]"
     }
   end
 
@@ -29,7 +31,7 @@ defmodule VmsServer.Factory do
   end
 
   def chronicle_factory do
-    %Player{id: storyteller_id} = insert(:player)
+    %User{id: storyteller_id} = insert(:user)
 
     %Chronicle{
       title: "Rise and fall of noob saibot",
@@ -39,7 +41,7 @@ defmodule VmsServer.Factory do
   end
 
   def character_factory do
-    %Player{id: player_id} = insert(:player)
+    %User{id: user_id} = insert(:user)
     %Race{id: race_id} = insert(:race)
     %Chronicle{id: chronicle_id} = insert(:chronicle)
 
@@ -49,7 +51,7 @@ defmodule VmsServer.Factory do
       lethal: 0,
       aggravated: 0,
       race_id: race_id,
-      player_id: player_id,
+      user_id: user_id,
       chronicle_id: chronicle_id
     }
   end

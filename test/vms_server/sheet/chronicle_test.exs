@@ -12,7 +12,7 @@ defmodule VmsServer.Sheet.ChronicleTest do
       attrs = %{
         title: "The Rise of Phoenix",
         description: "An epic tale of rebirth and renewal.",
-        storyteller_id: insert(:player).id
+        storyteller_id: insert(:user).id
       }
 
       changeset = Chronicle.create_changeset(attrs)
@@ -21,7 +21,7 @@ defmodule VmsServer.Sheet.ChronicleTest do
     end
 
     test "requires title to be present" do
-      attrs = %{description: "Missing title.", storyteller_id: insert(:player).id}
+      attrs = %{description: "Missing title.", storyteller_id: insert(:user).id}
       changeset = Chronicle.create_changeset(%Chronicle{}, attrs)
 
       refute changeset.valid?

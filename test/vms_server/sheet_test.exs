@@ -16,19 +16,19 @@ defmodule VmsServer.SheetTest do
       refute changeset.valid?
       assert changeset.errors[:name] == {"can't be blank", [validation: :required]}
       assert changeset.errors[:race_id] == {"can't be blank", [validation: :required]}
-      assert changeset.errors[:player_id] == {"can't be blank", [validation: :required]}
+      assert changeset.errors[:user_id] == {"can't be blank", [validation: :required]}
       assert changeset.errors[:chronicle_id] == {"can't be blank", [validation: :required]}
     end
 
     test "creates a character with valid data" do
       race = insert(:race)
-      player = insert(:player)
+      user = insert(:user)
       chronicle = insert(:chronicle)
 
       attrs = %{
         name: "Aragorn",
         race_id: race.id,
-        player_id: player.id,
+        user_id: user.id,
         chronicle_id: chronicle.id,
         bashing: 5,
         lethal: 3,
@@ -45,7 +45,7 @@ defmodule VmsServer.SheetTest do
 
     test "creates a character with characteristics levels, dynamic characteristics levels, race characteristics and character-specific characteristics" do
       race = insert(:race)
-      player = insert(:player)
+      user = insert(:user)
       chronicle = insert(:chronicle)
       characteristic = insert(:characteristics)
       dynamic_characteristic = insert(:dynamic_characteristics)
@@ -55,7 +55,7 @@ defmodule VmsServer.SheetTest do
       attrs = %{
         name: "Legolas",
         race_id: race.id,
-        player_id: player.id,
+        user_id: user.id,
         chronicle_id: chronicle.id,
         bashing: 5,
         lethal: 3,
@@ -110,7 +110,7 @@ defmodule VmsServer.SheetTest do
       invalid_attrs = %{
         name: "",
         race_id: "",
-        player_id: "",
+        user_id: "",
         chronicle_id: "",
         bashing: -1,
         lethal: -1,
@@ -122,20 +122,20 @@ defmodule VmsServer.SheetTest do
       refute changeset.valid?
       assert "can't be blank" in errors_on(changeset).name
       assert "can't be blank" in errors_on(changeset).race_id
-      assert "can't be blank" in errors_on(changeset).player_id
+      assert "can't be blank" in errors_on(changeset).user_id
       assert "can't be blank" in errors_on(changeset).chronicle_id
     end
 
     test "fails to create a character with non-existent race_id" do
       non_existent_uuid = "00000000-0000-0000-0000-000000000000"
 
-      player = insert(:player)
+      user = insert(:user)
       chronicle = insert(:chronicle)
 
       attrs = %{
         name: "Gandalf",
         race_id: non_existent_uuid,
-        player_id: player.id,
+        user_id: user.id,
         chronicle_id: chronicle.id,
         bashing: 0,
         lethal: 0,
@@ -148,7 +148,7 @@ defmodule VmsServer.SheetTest do
       assert "does not exist" in errors_on(changeset).race_id
     end
 
-    test "fails to create a character with non-existent player_id" do
+    test "fails to create a character with non-existent user_id" do
       non_existent_uuid = "00000000-0000-0000-0000-000000000000"
       race = insert(:race)
       chronicle = insert(:chronicle)
@@ -156,7 +156,7 @@ defmodule VmsServer.SheetTest do
       attrs = %{
         name: "Gandalf",
         race_id: race.id,
-        player_id: non_existent_uuid,
+        user_id: non_existent_uuid,
         chronicle_id: chronicle.id,
         bashing: 0,
         lethal: 0,
@@ -166,18 +166,18 @@ defmodule VmsServer.SheetTest do
       {:error, changeset} = Sheet.create_character(attrs)
 
       refute changeset.valid?
-      assert "does not exist" in errors_on(changeset).player_id
+      assert "does not exist" in errors_on(changeset).user_id
     end
 
     test "fails to create a character with non-existent chronicle_id" do
       non_existent_uuid = "00000000-0000-0000-0000-000000000000"
       race = insert(:race)
-      player = insert(:player)
+      user = insert(:user)
 
       attrs = %{
         name: "Gandalf",
         race_id: race.id,
-        player_id: player.id,
+        user_id: user.id,
         chronicle_id: non_existent_uuid,
         bashing: 0,
         lethal: 0,
@@ -191,20 +191,22 @@ defmodule VmsServer.SheetTest do
     end
   end
 
-  describe "create_player/1" do
-    test "validates presence of required fields for player" do
+  describe "create_user/1" do
+    test "validates presence of required fields for user" do
       attrs = %{}
-      {:error, changeset} = Sheet.create_player(attrs)
+      {:error, changeset} = Sheet.create_user(attrs)
 
       refute changeset.valid?
       assert "can't be blank" in errors_on(changeset).name
     end
 
-    test "creates a player with valid data" do
-      attrs = %{name: "Boromir"}
-      {:ok, player} = Sheet.create_player(attrs)
+    test "creates a user with valid data" do
+      attrs = %{name: "Boromir", email: "boromir@bormir.com", hashed_password: "Asdasdqww12312"}
+      {:ok, user} = Sheet.create_user(attrs)
 
-      assert player.name == "Boromir"
+      assert user.name == attrs.name
+      assert user.email == attrs.email
+      assert user.hashed_password == attrs.hashed_password
     end
   end
 
@@ -218,7 +220,7 @@ defmodule VmsServer.SheetTest do
     end
 
     test "creates a chronicle with valid data" do
-      storyteller = insert(:player)
+      storyteller = insert(:user)
 
       attrs = %{
         title: "The Fall of Gondor",
@@ -281,11 +283,11 @@ defmodule VmsServer.SheetTest do
   describe "update_character/2" do
     setup do
       race = insert(:race)
-      player = insert(:player)
+      user = insert(:user)
       chronicle = insert(:chronicle)
 
       character =
-        insert(:character, race_id: race.id, player_id: player.id, chronicle_id: chronicle.id)
+        insert(:character, race_id: race.id, user_id: user.id, chronicle_id: chronicle.id)
 
       {:ok, character: character}
     end

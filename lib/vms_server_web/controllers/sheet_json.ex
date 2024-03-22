@@ -65,7 +65,7 @@ defmodule VmsServerWeb.SheetJSON do
       lethal: character.lethal,
       aggravated: character.aggravated,
       race_id: character.race_id,
-      player_id: character.player_id,
+      user_id: character.user_id,
       chronicle_id: character.chronicle_id,
       inserted_at: character.inserted_at,
       updated_at: character.updated_at

@@ -32,7 +32,7 @@ defmodule VmsServerWeb.SheetControllerTest do
   describe "create/2" do
     setup %{conn: conn} do
       race = insert(:race, name: "vampire")
-      player = insert(:player)
+      user = insert(:user)
       chronicle = insert(:chronicle)
       category = insert(:category_with_race, %{race_id: race.id})
 
@@ -55,7 +55,7 @@ defmodule VmsServerWeb.SheetControllerTest do
       attrs = %{
         name: "Benimary",
         race_id: race.id,
-        player_id: player.id,
+        user_id: user.id,
         chronicle_id: chronicle.id,
         characteristics_levels: characteristics_levels,
         dynamic_characteristics_levels: dynamic_characteristics_levels,
@@ -76,15 +76,15 @@ defmodule VmsServerWeb.SheetControllerTest do
       assert Repo.get_by(VmsServer.Sheet.Character, id: character_id) != nil
     end
 
-    test "fails to create a character when race_id, player_id, or chronicle_id are blank", %{
+    test "fails to create a character when race_id, user_id, or chronicle_id are blank", %{
       conn: conn,
       attrs: attrs
     } do
-      attrs_without_required_ids = Map.drop(attrs, [:race_id, :player_id, :chronicle_id])
+      attrs_without_required_ids = Map.drop(attrs, [:race_id, :user_id, :chronicle_id])
       response = post(conn, "/api/sheet", attrs_without_required_ids)
       assert json_response(response, 400)["errors"]["race_id"] == ["can't be blank"]
 
-      assert json_response(response, 400)["errors"]["player_id"] == [
+      assert json_response(response, 400)["errors"]["user_id"] == [
                "can't be blank"
              ]
 
@@ -265,14 +265,14 @@ defmodule VmsServerWeb.SheetControllerTest do
   describe "update/2" do
     setup %{conn: conn} do
       race = insert(:race, name: "Elf")
-      player = insert(:player, name: "John Doe")
+      user = insert(:user, name: "John Doe")
       chronicle = insert(:chronicle, title: "The Great Adventure")
 
       character =
         insert(:character,
           name: "Legolas",
           race_id: race.id,
-          player_id: player.id,
+          user_id: user.id,
           chronicle_id: chronicle.id
         )
 
@@ -281,7 +281,7 @@ defmodule VmsServerWeb.SheetControllerTest do
          conn: conn,
          character: character,
          race_id: race.id,
-         player_id: player.id,
+         user_id: user.id,
          chronicle_id: chronicle.id
        }}
     end

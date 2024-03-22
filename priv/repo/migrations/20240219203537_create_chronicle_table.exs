@@ -6,7 +6,7 @@ defmodule VmsServer.Repo.Migrations.CreateChronicleTable do
       add :id, :uuid, primary_key: true
       add :title, :string, null: false
       add :description, :text
-      add :storyteller_id, references(:player, type: :uuid), null: false
+      add :storyteller_id, references(:user, type: :uuid), null: false
 
       timestamps()
     end

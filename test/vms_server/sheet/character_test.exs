@@ -13,19 +13,19 @@ defmodule VmsServer.Sheet.CharacterTest do
       refute changeset.valid?
       assert "can't be blank" in errors_on(changeset).name
       assert "can't be blank" in errors_on(changeset).race_id
-      assert "can't be blank" in errors_on(changeset).player_id
+      assert "can't be blank" in errors_on(changeset).user_id
       assert "can't be blank" in errors_on(changeset).chronicle_id
     end
 
     test "creates a character with valid data" do
       race = insert(:race)
-      player = insert(:player)
+      user = insert(:user)
       chronicle = insert(:chronicle)
 
       attrs = %{
         name: "Aragorn",
         race_id: race.id,
-        player_id: player.id,
+        user_id: user.id,
         chronicle_id: chronicle.id,
         bashing: 5,
         lethal: 3,
@@ -44,7 +44,7 @@ defmodule VmsServer.Sheet.CharacterTest do
 
     test "creates a character with characteristics levels, dynamic characteristics levels, and race characteristics inside of character changeset" do
       race = insert(:race)
-      player = insert(:player)
+      user = insert(:user)
       chronicle = insert(:chronicle)
       characteristic = insert(:characteristics)
       dynamic_characteristic = insert(:dynamic_characteristics)
@@ -53,7 +53,7 @@ defmodule VmsServer.Sheet.CharacterTest do
       attrs = %{
         name: "Aragorn",
         race_id: race.id,
-        player_id: player.id,
+        user_id: user.id,
         chronicle_id: chronicle.id,
         bashing: 5,
         lethal: 3,
