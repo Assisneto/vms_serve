@@ -201,12 +201,12 @@ defmodule VmsServer.SheetTest do
     end
 
     test "creates a user with valid data" do
-      attrs = %{name: "Boromir", email: "boromir@bormir.com", hashed_password: "Asdasdqww12312"}
+      attrs = %{name: "Boromir", email: "boromir@bormir.com", password: "Asdasdqww12312"}
       {:ok, user} = Sheet.create_user(attrs)
 
       assert user.name == attrs.name
       assert user.email == attrs.email
-      assert user.hashed_password == attrs.hashed_password
+      assert user.password == attrs.password
     end
   end
 
