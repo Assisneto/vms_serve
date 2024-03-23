@@ -1,14 +1,14 @@
 defmodule VmsServer.Sheet.Chronicle do
   use VmsServer.Schema
   import Ecto.Changeset
-  alias VmsServer.Sheet.Player
+  alias VmsServer.Sheet.User
 
   @primary_key {:id, Ecto.UUID, autogenerate: true}
   schema "chronicle" do
     field :title, :string
     field :description, :string
 
-    belongs_to :storyteller, Player
+    belongs_to :storyteller, User
     timestamps()
   end
 

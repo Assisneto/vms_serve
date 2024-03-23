@@ -6,7 +6,7 @@ defmodule VmsServer.Repo.Migrations.CreateCharacterTable do
       add :id, :uuid, primary_key: true
       add :race_id, references(:race, type: :uuid), null: false
       add :name, :text
-      add :player_id, references(:player, type: :uuid), null: false
+      add :user_id, references(:user, type: :uuid), null: false
       add :chronicle_id, references(:chronicle, type: :uuid), null: false
       add :bashing, :integer
       add :lethal, :integer

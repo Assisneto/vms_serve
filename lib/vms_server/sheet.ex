@@ -5,17 +5,17 @@ defmodule VmsServer.Sheet do
   alias VmsServer.Repo
 
   alias VmsServer.Sheet.{
-    Player,
+    User,
     Character,
     Chronicle,
     CharacteristicsLevel
   }
 
-  @spec create_player(%{name: String.t()}) :: {:ok, Player.t()} | {:error, Ecto.Changeset.t()}
-  def create_player(attr),
+  @spec create_user(%{name: String.t()}) :: {:ok, User.t()} | {:error, Ecto.Changeset.t()}
+  def create_user(attr),
     do:
       attr
-      |> Player.changeset()
+      |> User.changeset()
       |> Repo.insert()
 
   @spec create_chronicle(%{
@@ -37,7 +37,7 @@ defmodule VmsServer.Sheet do
             %{characteristic_id: <<_::288>>, level: integer(), used: integer()}
           ],
           :name => binary(),
-          :player_id => <<_::288>>,
+          :user_id => <<_::288>>,
           :race_characteristics => [%{key: binary(), value: binary()}],
           :race_id => <<_::288>>,
           :characteristics => [
@@ -50,7 +50,7 @@ defmodule VmsServer.Sheet do
             }
           ],
           :name => binary(),
-          :player_id => binary(),
+          :user_id => binary(),
           :race_characteristics => [%{key: binary(), value: binary()}],
           :race_id => binary(),
           optional(:aggravated) => integer(),

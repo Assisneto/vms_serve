@@ -47,10 +47,11 @@ Table race_characteristics {
 //   race_id uuid [ref: > race.id]
 // }
 
-Table player {
+Table user {
   id uuid [pk]
   name varchar
   email varchar
+  hashed_password varchar
   created_at timestamp
 }
 
@@ -58,7 +59,7 @@ Table chronicle {
   id uuid [pk]
   title varchar
   description text
-  storyteller_id uuid [ref: > player.id]
+  storyteller_id uuid [ref: > user.id]
   created_at timestamp
 }
 
@@ -66,7 +67,7 @@ Table character {
   id uuid [pk]
   race_id uuid [ref: > race.id]
   name text
-  player_id uuid [ref: > player.id]
+  user_id uuid [ref: > user.id]
   chronicle_id uuid [ref: > chronicle.id]
   // willpower_max int
   // willpower_current int
