@@ -47,4 +47,7 @@ defmodule VmsServer.Accounts.User do
        do: change(changeset, %{hashed_password: Argon2.hash_pwd_salt(password)})
 
   defp add_hashed_password(changeset), do: changeset
+
+  def verify_password(%{hashed_password: hashed_password}, password),
+    do: Argon2.verify_pass(password, hashed_password)
 end

@@ -12,6 +12,7 @@ defmodule VmsServerWeb.Router do
 
     resources "/sheet", SheetController, only: [:show, :create, :update]
     resources "/user", UserController, only: [:create]
+    post "/user/login", UserController, :login
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

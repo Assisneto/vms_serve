@@ -10,6 +10,13 @@ defmodule VmsServerWeb.UserController do
     end
   end
 
+  def login(conn, params) do
+    with {:ok, user} <- Accounts.login(params) do
+      user
+      |> handle_response(conn, :user, :ok)
+    end
+  end
+
   defp handle_response(response, conn, view, status),
     do:
       conn
