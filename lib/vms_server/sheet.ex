@@ -5,11 +5,12 @@ defmodule VmsServer.Sheet do
   alias VmsServer.Repo
 
   alias VmsServer.Sheet.{
-    User,
     Character,
     Chronicle,
     CharacteristicsLevel
   }
+
+  alias VmsServer.Accounts.User
 
   @spec create_user(%{name: String.t()}) :: {:ok, User.t()} | {:error, Ecto.Changeset.t()}
   def create_user(attr),

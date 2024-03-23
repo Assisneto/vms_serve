@@ -1,4 +1,4 @@
-defmodule VmsServer.Sheet.User do
+defmodule VmsServer.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -22,7 +22,7 @@ defmodule VmsServer.Sheet.User do
             :password => String.t()
           }
         ) :: Ecto.Changeset.t()
-  def changeset(user \\ %VmsServer.Sheet.User{}, attrs) do
+  def changeset(user \\ %VmsServer.Accounts.User{}, attrs) do
     user
     |> cast(attrs, @required_fields)
     |> validate_required(@required_fields)

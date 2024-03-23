@@ -1,6 +1,5 @@
 defmodule VmsServer.Factory do
   alias VmsServer.Sheet.{
-    User,
     Race,
     Character,
     Chronicle,
@@ -12,6 +11,8 @@ defmodule VmsServer.Factory do
     DynamicCharacteristicsLevel,
     RaceCharacteristics
   }
+
+  alias VmsServer.Accounts.User
 
   use ExMachina.Ecto, repo: VmsServer.Repo
 

@@ -1,11 +1,11 @@
-defmodule VmsServer.Sheet.UserTest do
+defmodule VmsServer.Accounts.UserTest do
   use ExUnit.Case, async: true
   use VmsServer.DataCase
 
   import VmsServer.Factory
 
   alias VmsServer.Repo
-  alias VmsServer.Sheet.User
+  alias VmsServer.Accounts.User
 
   describe "User changesets" do
     test "creates a valid changeset" do
