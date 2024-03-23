@@ -19,7 +19,8 @@ defmodule VmsServer.Factory do
     %User{
       name: "Assis neto",
       email: "assisneto@email.com",
-      hashed_password: "diosjado123123123[][0-2]"
+      hashed_password: "Pdiosjado123123123[][0-2]",
+      password: "A23ksda()"
     }
   end
 
