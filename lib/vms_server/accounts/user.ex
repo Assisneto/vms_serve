@@ -31,7 +31,14 @@ defmodule VmsServer.Accounts.User do
     |> validate_format(:password, ~r/[a-z]/, message: "at least one lower case character")
     |> validate_format(:password, ~r/[A-Z]/, message: "at least one upper case character")
     |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/, message: "must have the @ sign and no spaces")
+    |> validate_unique_email()
     |> add_hashed_password()
+  end
+
+  defp validate_unique_email(changeset) do
+    changeset
+    |> unsafe_validate_unique(:email, VmsServer.Repo)
+    |> unique_constraint(:email)
   end
 
   defp add_hashed_password(

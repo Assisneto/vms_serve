@@ -116,5 +116,16 @@ defmodule VmsServer.Accounts.UserTest do
 
       assert Map.get(changeset.changes, :hashed_password) == nil
     end
+
+    test "validates email uniqueness on insert" do
+      existing_user = insert(:user, email: "unique@example.com")
+      new_user_params = %{name: "Bob", email: existing_user.email, password: "Secret123!"}
+
+      changeset = User.changeset(%User{}, new_user_params)
+
+      refute changeset.valid?
+
+      assert ["has already been taken"] == errors_on(changeset).email
+    end
   end
 end
