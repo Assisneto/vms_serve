@@ -10,15 +10,6 @@ defmodule VmsServer.Sheet do
     CharacteristicsLevel
   }
 
-  alias VmsServer.Accounts.User
-
-  @spec create_user(%{name: String.t()}) :: {:ok, User.t()} | {:error, Ecto.Changeset.t()}
-  def create_user(attr),
-    do:
-      attr
-      |> User.changeset()
-      |> Repo.insert()
-
   @spec create_chronicle(%{
           title: String.t(),
           description: String.t() | nil,

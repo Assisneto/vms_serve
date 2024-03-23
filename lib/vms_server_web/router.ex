@@ -11,6 +11,7 @@ defmodule VmsServerWeb.Router do
     get "/sheet/characteristics/:race_id", SheetController, :get_characteristics_fields
 
     resources "/sheet", SheetController, only: [:show, :create, :update]
+    resources "/user", UserController, only: [:create]
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
