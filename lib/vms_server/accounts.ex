@@ -15,8 +15,8 @@ defmodule VmsServer.Accounts do
           | {:ok, User.t()}
   def login(%{"email" => email, "password" => password}) do
     case Repo.get_by(User, email: email) do
-      {:ok, user} -> verify(user, password)
       nil -> {:error, {:not_found, "User not found"}}
+      user -> verify(user, password)
     end
   end
 
