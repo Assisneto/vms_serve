@@ -1,6 +1,9 @@
 defmodule VmsServerWeb.UserController do
-  alias VmsServer.Accounts
   use VmsServerWeb, :controller
+
+  alias VmsServer.Accounts
+  alias VmsServerWeb.Token
+
   action_fallback VmsServerWeb.FallbackController
 
   def create(conn, params) do
@@ -12,8 +15,12 @@ defmodule VmsServerWeb.UserController do
 
   def login(conn, params) do
     with {:ok, user} <- Accounts.login(params) do
+      token =
+        Token.sign(user)
+
       user
-      |> handle_response(conn, :user, :ok)
+      |> Map.put(:token, token)
+      |> handle_response(conn, :user_logged, :ok)
     end
   end
 
