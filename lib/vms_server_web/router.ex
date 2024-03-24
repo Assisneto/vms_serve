@@ -5,14 +5,23 @@ defmodule VmsServerWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :auth do
+    plug VmsServerWeb.Plugs.Auth
+  end
+
   scope "/api", VmsServerWeb do
     pipe_through :api
+
+    resources "/user", UserController, only: [:create]
+    post "/user/login", UserController, :login
+  end
+
+  scope "/api", VmsServerWeb do
+    pipe_through [:api, :auth]
 
     get "/sheet/characteristics/:race_id", SheetController, :get_characteristics_fields
 
     resources "/sheet", SheetController, only: [:show, :create, :update]
-    resources "/user", UserController, only: [:create]
-    post "/user/login", UserController, :login
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
