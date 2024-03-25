@@ -17,7 +17,7 @@ defmodule VmsServerWeb.FallbackController do
 
   def call(conn, {:error, message}) do
     conn
-    |> put_status(:bad_request)
+    |> put_status(message)
     |> put_view(json: VmsServerWeb.ErrorJSON)
     |> render(:error, error: message)
   end
