@@ -288,7 +288,8 @@ defmodule VmsServerWeb.SheetControllerTest do
 
       {:ok,
        %{
-         conn: authenticate_conn,
+         authenticate_conn: authenticate_conn,
+         conn: conn,
          character: character,
          race_id: race.id,
          user_id: user.id,
@@ -296,14 +297,17 @@ defmodule VmsServerWeb.SheetControllerTest do
        }}
     end
 
-    test "updates a character and returns 204 No Content", %{conn: conn, character: character} do
+    test "updates a character and returns 204 No Content", %{
+      authenticate_conn: authenticate_conn,
+      character: character
+    } do
       updated_attrs = %{
         id: character.id,
         name: "Legolas Greenleaf",
         bashing: 2
       }
 
-      conn = put(conn, "/api/sheet/#{character.id}", updated_attrs)
+      conn = put(authenticate_conn, "/api/sheet/#{character.id}", updated_attrs)
       assert response(conn, 204)
 
       updated_character = Repo.get(VmsServer.Sheet.Character, character.id)
@@ -311,7 +315,9 @@ defmodule VmsServerWeb.SheetControllerTest do
       assert updated_character.bashing == 2
     end
 
-    test "returns 404 Not Found for an unknown character id", %{conn: conn} do
+    test "returns 404 Not Found for an unknown character id", %{
+      authenticate_conn: authenticate_conn
+    } do
       unknown_character_id = "00000000-0000-0000-0000-000000000000"
 
       updated_attrs = %{
@@ -319,11 +325,29 @@ defmodule VmsServerWeb.SheetControllerTest do
         bashing: 1
       }
 
-      conn = put(conn, "/api/sheet/#{unknown_character_id}", updated_attrs)
+      conn = put(authenticate_conn, "/api/sheet/#{unknown_character_id}", updated_attrs)
       assert errors = json_response(conn, 404)
 
       assert errors == %{
                "errors" => "Character not found"
+             }
+    end
+
+    test "returns 401 when try get character without authenticate", %{
+      conn: conn
+    } do
+      random_character_id = "00000000-0000-0000-0000-000000000000"
+
+      updated_attrs = %{
+        name: "random Character",
+        bashing: 1
+      }
+
+      conn = put(conn, "/api/sheet/#{random_character_id}", updated_attrs)
+      assert errors = json_response(conn, 401)
+
+      assert errors == %{
+               "errors" => "unauthorized"
              }
     end
   end

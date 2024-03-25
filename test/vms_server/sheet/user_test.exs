@@ -127,5 +127,19 @@ defmodule VmsServer.Accounts.UserTest do
 
       assert ["has already been taken"] == errors_on(changeset).email
     end
+
+    test "returns true for correct password" do
+      user_params = %{name: "Test User", email: "test@example.com", password: "Password123"}
+      user = User.changeset(%User{}, user_params) |> Repo.insert!()
+
+      assert User.verify_password(user, "Password123")
+    end
+
+    test "returns false for incorrect password" do
+      user_params = %{name: "Test User", email: "test@example.com", password: "Password123"}
+      user = User.changeset(%User{}, user_params) |> Repo.insert!()
+
+      refute User.verify_password(user, "wrongpassword")
+    end
   end
 end
