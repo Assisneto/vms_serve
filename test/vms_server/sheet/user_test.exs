@@ -1,11 +1,11 @@
-defmodule VmsServer.Sheet.UserTest do
+defmodule VmsServer.Accounts.UserTest do
   use ExUnit.Case, async: true
   use VmsServer.DataCase
 
   import VmsServer.Factory
 
   alias VmsServer.Repo
-  alias VmsServer.Sheet.User
+  alias VmsServer.Accounts.User
 
   describe "User changesets" do
     test "creates a valid changeset" do
@@ -115,6 +115,31 @@ defmodule VmsServer.Sheet.UserTest do
       refute changeset.valid?
 
       assert Map.get(changeset.changes, :hashed_password) == nil
+    end
+
+    test "validates email uniqueness on insert" do
+      existing_user = insert(:user, email: "unique@example.com")
+      new_user_params = %{name: "Bob", email: existing_user.email, password: "Secret123!"}
+
+      changeset = User.changeset(%User{}, new_user_params)
+
+      refute changeset.valid?
+
+      assert ["has already been taken"] == errors_on(changeset).email
+    end
+
+    test "returns true for correct password" do
+      user_params = %{name: "Test User", email: "test@example.com", password: "Password123"}
+      user = User.changeset(%User{}, user_params) |> Repo.insert!()
+
+      assert User.verify_password(user, "Password123")
+    end
+
+    test "returns false for incorrect password" do
+      user_params = %{name: "Test User", email: "test@example.com", password: "Password123"}
+      user = User.changeset(%User{}, user_params) |> Repo.insert!()
+
+      refute User.verify_password(user, "wrongpassword")
     end
   end
 end

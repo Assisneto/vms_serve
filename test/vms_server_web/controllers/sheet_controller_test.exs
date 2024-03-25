@@ -1,17 +1,21 @@
 defmodule VmsServerWeb.SheetControllerTest do
   alias VmsServer.Repo
   use VmsServerWeb.ConnCase
-
+  alias VmsServerWeb.Token
   import VmsServer.Factory
 
   describe "get_characteristics_fields/2" do
     setup %{conn: conn} do
       race = insert(:race, name: "vampire")
       category = insert(:category_with_race, %{race_id: race.id})
+
       insert(:characteristics, %{category_id: category.id, name: "strength"})
       insert(:dynamic_characteristics, %{category_id: category.id, name: "willpower"})
 
-      {:ok, %{conn: conn, race: race}}
+      authenticate_conn =
+        authenticate_user(conn)
+
+      {:ok, %{conn: authenticate_conn, race: race}}
     end
 
     test "returns 200 OK with characteristics fields for a known race id", %{
@@ -66,7 +70,10 @@ defmodule VmsServerWeb.SheetControllerTest do
         aggravated: 0
       }
 
-      {:ok, %{conn: conn, attrs: attrs}}
+      authenticate_conn =
+        authenticate_user(conn)
+
+      {:ok, %{conn: authenticate_conn, attrs: attrs}}
     end
 
     test "creates a character and returns 201 Created", %{conn: conn, attrs: attrs} do
@@ -276,8 +283,12 @@ defmodule VmsServerWeb.SheetControllerTest do
           chronicle_id: chronicle.id
         )
 
+      authenticate_conn =
+        authenticate_user(conn)
+
       {:ok,
        %{
+         authenticate_conn: authenticate_conn,
          conn: conn,
          character: character,
          race_id: race.id,
@@ -286,14 +297,17 @@ defmodule VmsServerWeb.SheetControllerTest do
        }}
     end
 
-    test "updates a character and returns 204 No Content", %{conn: conn, character: character} do
+    test "updates a character and returns 204 No Content", %{
+      authenticate_conn: authenticate_conn,
+      character: character
+    } do
       updated_attrs = %{
         id: character.id,
         name: "Legolas Greenleaf",
         bashing: 2
       }
 
-      conn = put(conn, "/api/sheet/#{character.id}", updated_attrs)
+      conn = put(authenticate_conn, "/api/sheet/#{character.id}", updated_attrs)
       assert response(conn, 204)
 
       updated_character = Repo.get(VmsServer.Sheet.Character, character.id)
@@ -301,7 +315,9 @@ defmodule VmsServerWeb.SheetControllerTest do
       assert updated_character.bashing == 2
     end
 
-    test "returns 404 Not Found for an unknown character id", %{conn: conn} do
+    test "returns 404 Not Found for an unknown character id", %{
+      authenticate_conn: authenticate_conn
+    } do
       unknown_character_id = "00000000-0000-0000-0000-000000000000"
 
       updated_attrs = %{
@@ -309,11 +325,29 @@ defmodule VmsServerWeb.SheetControllerTest do
         bashing: 1
       }
 
-      conn = put(conn, "/api/sheet/#{unknown_character_id}", updated_attrs)
+      conn = put(authenticate_conn, "/api/sheet/#{unknown_character_id}", updated_attrs)
       assert errors = json_response(conn, 404)
 
       assert errors == %{
                "errors" => "Character not found"
+             }
+    end
+
+    test "returns 401 when try get character without authenticate", %{
+      conn: conn
+    } do
+      random_character_id = "00000000-0000-0000-0000-000000000000"
+
+      updated_attrs = %{
+        name: "random Character",
+        bashing: 1
+      }
+
+      conn = put(conn, "/api/sheet/#{random_character_id}", updated_attrs)
+      assert errors = json_response(conn, 401)
+
+      assert errors == %{
+               "errors" => "unauthorized"
              }
     end
   end
@@ -345,9 +379,12 @@ defmodule VmsServerWeb.SheetControllerTest do
       race_characteristics =
         insert(:race_characteristics, %{character_id: character.id})
 
+      authenticate_conn =
+        authenticate_user(conn)
+
       {:ok,
        %{
-         conn: conn,
+         conn: authenticate_conn,
          character_id: character.id,
          characteristics_level: characteristics_level,
          dynamic_characteristics_level: dynamic_characteristics_level,
@@ -406,5 +443,14 @@ defmodule VmsServerWeb.SheetControllerTest do
       conn = get(conn, "/api/sheet/#{non_existent_id}")
       assert response(conn, 404)
     end
+  end
+
+  defp authenticate_user(conn) do
+    token =
+      insert(:user)
+      |> Token.sign()
+
+    auth_header = "Bearer #{token}"
+    Plug.Conn.put_req_header(conn, "authorization", auth_header)
   end
 end

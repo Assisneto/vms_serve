@@ -3,7 +3,6 @@ defmodule VmsServer.Sheet.Character do
   import Ecto.Changeset
 
   alias VmsServer.Sheet.{
-    User,
     Race,
     Chronicle,
     CharacteristicsLevel,
@@ -11,6 +10,8 @@ defmodule VmsServer.Sheet.Character do
     RaceCharacteristics,
     Characteristics
   }
+
+  alias VmsServer.Accounts.User
 
   @primary_key {:id, Ecto.UUID, autogenerate: true}
   schema "character" do

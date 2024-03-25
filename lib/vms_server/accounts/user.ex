@@ -1,4 +1,4 @@
-defmodule VmsServer.Sheet.User do
+defmodule VmsServer.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -22,7 +22,7 @@ defmodule VmsServer.Sheet.User do
             :password => String.t()
           }
         ) :: Ecto.Changeset.t()
-  def changeset(user \\ %VmsServer.Sheet.User{}, attrs) do
+  def changeset(user \\ %VmsServer.Accounts.User{}, attrs) do
     user
     |> cast(attrs, @required_fields)
     |> validate_required(@required_fields)
@@ -31,7 +31,14 @@ defmodule VmsServer.Sheet.User do
     |> validate_format(:password, ~r/[a-z]/, message: "at least one lower case character")
     |> validate_format(:password, ~r/[A-Z]/, message: "at least one upper case character")
     |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/, message: "must have the @ sign and no spaces")
+    |> validate_unique_email()
     |> add_hashed_password()
+  end
+
+  defp validate_unique_email(changeset) do
+    changeset
+    |> unsafe_validate_unique(:email, VmsServer.Repo)
+    |> unique_constraint(:email)
   end
 
   defp add_hashed_password(
@@ -40,4 +47,7 @@ defmodule VmsServer.Sheet.User do
        do: change(changeset, %{hashed_password: Argon2.hash_pwd_salt(password)})
 
   defp add_hashed_password(changeset), do: changeset
+
+  def verify_password(%{hashed_password: hashed_password}, password),
+    do: Argon2.verify_pass(password, hashed_password)
 end

@@ -191,25 +191,6 @@ defmodule VmsServer.SheetTest do
     end
   end
 
-  describe "create_user/1" do
-    test "validates presence of required fields for user" do
-      attrs = %{}
-      {:error, changeset} = Sheet.create_user(attrs)
-
-      refute changeset.valid?
-      assert "can't be blank" in errors_on(changeset).name
-    end
-
-    test "creates a user with valid data" do
-      attrs = %{name: "Boromir", email: "boromir@bormir.com", password: "Asdasdqww12312"}
-      {:ok, user} = Sheet.create_user(attrs)
-
-      assert user.name == attrs.name
-      assert user.email == attrs.email
-      assert user.password == attrs.password
-    end
-  end
-
   describe "create_chronicle/1" do
     test "validates presence of required fields for chronicle" do
       attrs = %{title: ""}

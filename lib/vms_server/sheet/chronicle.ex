@@ -1,7 +1,7 @@
 defmodule VmsServer.Sheet.Chronicle do
   use VmsServer.Schema
   import Ecto.Changeset
-  alias VmsServer.Sheet.User
+  alias VmsServer.Accounts.User
 
   @primary_key {:id, Ecto.UUID, autogenerate: true}
   schema "chronicle" do
